@@ -1,0 +1,126 @@
+﻿<!-- GAPI
+<div id="sst-googlepicker-div">
+  <div id="sst-authorize-div">
+    <p>
+      Current Google User:
+      <span id="current-google-user">You are not logged into your google account yet. Click here => </span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="button" id="authorize-button" style="display: none;" value="Authorize"/>
+      <input type="button" id="signout-button" style="display: none;" value="De-Authorize"/>
+      <span>access to your Google Sheets</span>
+    </p>
+  </div>
+  <table>
+    <tr>
+      <td>
+        <div>
+          <input type="button" id="sst-showpicker-button" onclick="sstShowPicker(sstPickerActiveSheetCallback)" value="Change Google Sheet. Or select XLSX to autoconvert" />
+        </div>
+      </td>
+      <td>
+        <div id="sst-init-sheet-button-div">
+          <input type="button" id="sst-init-sheet-button" onclick="sstPushClimberNamesIds2SheetClicked()" value="Initialize Sheet&#13;&#10; Push Names & ID into sheet below" />
+        </div>
+      </td>
+      <td>
+        <div id="sst-compare-button-div">
+          <input type="button" id="sst-compare-button" onclick="sstCompareClicked()" value="Compare worksheet with&#13;&#10; another Google Sheet or XLSX"/>
+        </div>
+      </td>
+      <td>
+        <div id="sst-check-rank-comp-button-div">
+          <input type="button" id="sst-check-rank-comp-button" onclick="sstCheckRankComputationClicked()" value="Compare worksheet ranking&#13;&#10; with the ranking computed by USAC" />
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div id="sst-compare-results-wrapper" style="display: none">
+    <div class="sst-close-button">
+      <a href="javascript:void(0);" onclick="$('#sst-compare-results-wrapper').hide();">Close</a>
+    </div>
+    <h4>Here are the results of the comparison between scoring workbooks:</h4>
+    <div id="sst-compare-results-div">
+      
+    </div>
+  </div>
+</div>
+GAP -->
+
+<div id="divScoringView" style="margin:20px;">
+  Scoring: 
+  <label><input type="radio" name="view" onclick="ScoringView(0);" id="_sheetView" checked="checked"> Sheets </label>
+  <label><input type="radio" name="view" onclick="ScoringView(1);" id="_usacView"> USAC</label>
+</div>
+
+<div class="sst-round-category-selection">
+  <fieldset>
+    <legend>Active categories</legend>
+    <div id="sst-form">
+      <table id="sst-table">
+        <tr>
+          <td>
+            <div class="switch">
+              <input id="sst-toggle-1" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="FJR" checked>
+              <label for="sst-toggle-1" data-on="FJR" data-off="fjr"></label>
+            </div>
+            <div class="switch">
+              <input id="sst-toggle-2" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="MJR">
+              <label for="sst-toggle-2" data-on="MJR" data-off="mjr"></label>
+            </div>
+          </td>
+          <td>
+            <div class="switch">
+              <input id="sst-toggle-3" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="FYA">
+              <label for="sst-toggle-3" data-on="FYA" data-off="fya"></label>
+            </div>
+            <div class="switch">
+              <input id="sst-toggle-4" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="MYA">
+              <label for="sst-toggle-4" data-on="MYA" data-off="mya"></label>
+            </div>
+          </td>
+          <td>
+            <div class="switch">
+              <input id="sst-toggle-5" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="FYB">
+              <label for="sst-toggle-5" data-on="FYB" data-off="fyb"></label>
+            </div>
+            <div class="switch">
+              <input id="sst-toggle-6" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="MYB">
+              <label for="sst-toggle-6" data-on="MYB" data-off="myb"></label>
+            </div>
+          </td>
+          <td>
+            <div class="switch">
+              <input id="sst-toggle-7" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="FYC">
+              <label for="sst-toggle-7" data-on="FYC" data-off="fyc"></label>
+            </div>
+            <div class="switch">
+              <input id="sst-toggle-8" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="MYC">
+              <label for="sst-toggle-8" data-on="MYC" data-off="myc"></label>
+            </div>
+          </td>
+          <td>
+            <div class="switch">
+              <input id="sst-toggle-9" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="FYD">
+              <label for="sst-toggle-9" data-on="FYD" data-off="fyd"></label>
+            </div>
+            <div class="switch">
+              <input id="sst-toggle-10" class="sst-toggle sst-toggle-yes-no" type="checkbox" value="MYD">
+              <label for="sst-toggle-10" data-on="MYD" data-off="myd"></label>
+            </div>
+          </td>
+          <td class="far-right-cell-buttons">
+            <input id="sst-push-to-usac" type="button" onclick="sstPushtoUSACClicked()" value="Push to USAC">
+          </td>
+          <td>
+            <p id="sst-awaiting-autoconvert" style="text-align: center;display: none;">
+              Awaiting last specified Excel workbook to be converted.
+            </p>
+            <p id="sst-awaiting-p" style="text-align: center; display: none;">Awaiting data to be confirmed:
+              <span id="sst-awaiting-span"></span> 
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </fieldset>
+</div>

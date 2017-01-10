@@ -1,0 +1,156 @@
+﻿#sst-partialHTML {
+    position: relative;    
+}
+#sst-showpicker-button {
+    height: 50px;
+    padding: 10px;
+}
+#sst-push-to-usac {
+    padding: 2px;
+    width: 150px;
+    height: 75px;
+    margin: auto;
+}
+
+td.far-right-cell-buttons {
+    width: 200px;
+    text-align: center;
+}
+
+#sst-awaiting-p {
+    color: darkred;
+    background-color: lightyellow;
+}
+#sst-awaiting-span {
+    font-size: small;    
+}
+#sst-awaiting-autoconvert {
+    color: darkred;
+    background-color: burlywood;
+}
+
+.sst-greyed-autoconverted-and-will-be-overwritten {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* msie */
+    background-color: #000;
+}
+.sst-greyed-autoconverted-and-will-be-overwritten::before {
+    content: "This was autoconverted and will be overwritten on the next push.";
+    color: white;
+}
+
+#sst-init-sheet-button-div {
+    margin-left: 50px;
+}#sst-init-sheet-button {
+    white-space: normal;
+    width: 120px;
+}
+
+#sst-check-rank-comp-button-div {
+    margin-left: 50px;
+}
+#sst-check-rank-comp-button {
+    white-space: normal;
+    width: 120px;
+    padding: 10px;
+}
+
+#sst-compare-button-div {
+    margin-left: 50px;
+}
+#sst-compare-button {
+    white-space: normal;
+    width: 120px;
+    padding: 10px;
+}
+#sst-compare-results-wrapper {
+    display: block;
+    border: thin solid blue;
+    margin-top: 10px;
+}
+#sst-compare-results-wrapper .sst-close-button {
+    position: absolute;
+    right: 0px;
+    
+}
+#sst-compare-results-wrapper  #sst-compare-results-div {
+    padding: 10px;
+}
+#sst-compare-results-wrapper  #sst-compare-results-div p.sst-compare-result-p {
+    background-color: lightgoldenrodyellow;
+}
+#sst-compare-results-wrapper  #sst-compare-results-div p.sst-compare-result-p.sst-good {
+    background-color: inherit;
+}
+
+/* CSS for fancy checkboxes */
+
+.sst-toggle {
+    position: absolute;
+    margin-left: -9999px;
+    visibility: hidden;
+}
+
+.sst-toggle + label {
+    margin: 4px;
+    display: block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+}
+
+input.sst-toggle-yes-no + label {
+    padding: 2px;
+    width: 100px;
+    height: 50px;
+}
+
+input.sst-toggle-yes-no + label:before,
+input.sst-toggle-yes-no + label:after {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    color: black;
+    font-family: "Roboto Slab", serif;
+    font-size: 20px;
+    text-align: center;
+    line-height: 50px;
+}
+
+input.sst-toggle-yes-no + label:before {
+    background-color: #dddddd;
+    content: attr(data-off);
+    color: gray;
+    transition: transform 0.5s;
+    backface-visibility: hidden;
+}
+
+input.sst-toggle-yes-no + label:after {
+    background-color: #8ce196;
+    content: attr(data-on);
+    transition: transform 0.5s;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+}
+
+input.sst-toggle-yes-no:checked + label:before {
+    transform: rotateY(180deg);
+}
+
+input.sst-toggle-yes-no:checked + label:after {
+    transform: rotateY(0);
+}
+
+fieldset {
+    border: 2px solid #a1a1a1;
+    padding: 10px 20px;
+    /*background: #e0e0e0;*/
+    width:200px;
+    border-radius: 25px;
+    /*margin: 10px;*/
+}
+

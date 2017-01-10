@@ -1,0 +1,16 @@
+#unzip nodejs.zip. Then run
+#
+#cmd>nodejs proxy.js
+#
+#Alternatively, download/install https://nodejs.org/en/download/ and install:
+npm install harmon
+npm install connect
+npm install http-proxy
+npm install express
+npm install agentkeepalive
+npm install googleapis
+npm install google-auth-library
+
+
+
+

@@ -1,0 +1,7 @@
+{
+    "remoteHost" : "www.usaclimbing.org", 
+    "proxyHost" : "localhost:8000",
+    "proxyPort" : 8000,
+    "images404" : 1,
+    "patchScript" : "/scoreboard/scoreboard.js"
+}
