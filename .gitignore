@@ -8,3 +8,5 @@
 /node_modules
 /bin
 /.vs/USACscoreboard.TStudiosFork/v14
+/.vs/config/applicationhost.config
+/typings
