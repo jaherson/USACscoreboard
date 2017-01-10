@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/USACscoreboard.TStudiosFork.sln
+/USACscoreboard.TStudiosFork.njsproj
+/obj/Debug
+/node_modules
+/bin
+/.vs/USACscoreboard.TStudiosFork/v14
