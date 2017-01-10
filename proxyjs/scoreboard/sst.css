@@ -5,11 +5,41 @@
     height: 50px;
     padding: 10px;
 }
+
+#sst-table {
+    margin: 6px 0.5em 6px;
+}
+table.sst-inside-fieldset {
+    margin: 12px 0 12px 0;
+    padding: 0 10px 0 10px;
+}
+#sst-controls div.sst-compare-button-group-div {
+    margin-right: 10px;
+}
 #sst-push-to-usac {
     padding: 2px;
-    width: 150px;
-    height: 75px;
-    margin: auto;
+    width: 70px;
+    height: 60px;
+    margin-left: 5px;
+    text-align: center;
+    border-radius: 8px;
+    border: 0;
+    background-color: #e31b31;
+    color: white;
+    font-size: 14px;
+}
+.sst-compare-button-group-div button.compare-group {
+    padding: 4px;
+    width: 122px;
+    height: 60px;
+    margin-left: 5px;
+    text-align: center;
+    border-radius: 8px;
+    border: 0;
+    background-color: #002a5c;
+    color: white;
+    font-size: 14px;
+    
 }
 
 td.far-right-cell-buttons {
@@ -102,8 +132,8 @@ td.far-right-cell-buttons {
 
 input.sst-toggle-yes-no + label {
     padding: 2px;
-    width: 100px;
-    height: 50px;
+    width: 80px;
+    height: 30px;
 }
 
 input.sst-toggle-yes-no + label:before,
@@ -116,9 +146,9 @@ input.sst-toggle-yes-no + label:after {
     right: 0;
     color: black;
     font-family: "Roboto Slab", serif;
-    font-size: 20px;
+    font-size: 18px;
     text-align: center;
-    line-height: 50px;
+    line-height: 30px;
 }
 
 input.sst-toggle-yes-no + label:before {
@@ -130,7 +160,7 @@ input.sst-toggle-yes-no + label:before {
 }
 
 input.sst-toggle-yes-no + label:after {
-    background-color: #8ce196;
+    background-color: #8de196;
     content: attr(data-on);
     transition: transform 0.5s;
     transform: rotateY(180deg);
@@ -145,12 +175,27 @@ input.sst-toggle-yes-no:checked + label:after {
     transform: rotateY(0);
 }
 
+.sst-round-category-selection fieldset {
+            width:100px;   
+} 
+.sst-compare-button-group-div fieldset {
+        width:auto;   
+}
+
 fieldset {
-    border: 2px solid #a1a1a1;
-    padding: 10px 20px;
-    /*background: #e0e0e0;*/
-    width:200px;
-    border-radius: 25px;
-    /*margin: 10px;*/
+    padding: 0;
+    border: 0;
+    background: #CACACA;
+
+}
+fieldset legend {
+    background: #434343;
+    color: white;
+    font-size: 16px;
+    align-content: center; 
+    padding-left: 8px;
+    padding-top: 3px;
+    height: 32px;
+    width: 100%;
 }
 
