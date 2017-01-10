@@ -1,9 +1,7 @@
 "use strict";
 console.log("scoreboard loaded");
 
-var MATT = '1eUQ_5E7PnJ3Nq39q-FFtgITpicdQNgx4Key7AiKjgp8';
-var LARRY = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY'; 
-var DEFAULTSHEETID = LARRY;
+var DEFAULTSHEETID = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY'; 
 var sstActiveSheetId = DEFAULTSHEETID; 
 
 function scoreboardInit()
@@ -26,7 +24,6 @@ function scoreboardInit()
 
     var contentArea = $('div.contentarea.content-container');
     contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe style="width: 100%; height: 700px;"></iframe></div><center>'));
-
 	changeIframeSrc(DEFAULTSHEETID);
 
 	setTimeout(waitForBoulderingTab, 1000);
@@ -51,9 +48,9 @@ function waitForBoulderingTab() {
         return;
     }
 
-    divBouldering.hide();
-    divSST.show();
-    divSheets.show();
+	ScoringView(0);
+
+    divSST.show(); //weird ScoringView doesn't work on this?
 }
 
 function changeIframeSrc(newSheetID) {
@@ -67,15 +64,21 @@ function ScoringView(id) {
     console.log(id);
     switch(id) {
     case 1:
-        $(".sst-round-category-selection").hide();
-	$("#divSheets").hide();
-	$("#divBouldering").show();
-	break;
+		$("#divBouldering").show();
+		$('#pagetitle').show();
+		$('#divIntro').show();
+		$('div.footer-wrapper').show();
+		$(".sst-round-category-selection").hide();
+		$("#divSheets").hide();
+		break;
     case 0:
-	$("#divBouldering").hide();
-        $(".sst-round-category-selection").show();
-	$("#divSheets").show();
-	break;
+		$("#divBouldering").hide();
+		$('#pagetitle').hide();
+		$('#divIntro').hide();
+		$('div.footer-wrapper').hide();
+		$(".sst-round-category-selection").show();
+		$("#divSheets").show();
+		break;
     }
 }
 
