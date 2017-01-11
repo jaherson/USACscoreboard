@@ -260,7 +260,7 @@ function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
 		alert("The Round Name was not found for " + categoryName);
 		return;
             }
-	    console.log(categoryVM);
+	    //console.log(categoryVM);
             runWhenSuccess(categoryVM);
             
 	}, function (response) {

@@ -22,10 +22,10 @@ proxyGAPI.Init();
 app.use(
   function (req, res) {
     if (req.url.indexOf('/scoreboard/') == 0) {
-	//console.log("local: %s", req.url);
 	proxyLocal.Get('.', req, res);
+    } else if (req.url.indexOf('/gapi/') == 0) {
+	proxyGAPI.Get(req, res);
     } else {
-	//console.log("%s %s", req.method, req.url);
 	proxyRemote.Get(req, res);
     }
 })

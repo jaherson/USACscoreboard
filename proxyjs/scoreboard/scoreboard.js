@@ -13,10 +13,9 @@ function scoreboardInit()
         return;
     }
 
-    $("head")
-        .append($('<style></style>')
-        .load("/scoreboard/sst.css"));
+    loadStyle("/scoreboard/sst.css");
 
+    loadScript("/scoreboard/simplescoring.js");
 
     divBouldering
 	.before($('<div id="sst-partialHTML" style="display:none;">')
@@ -65,25 +64,46 @@ function ScoringView(id) {
     console.log(id);
     switch(id) {
     case 1:
-		$("#divBouldering").show();
-		$('#pagetitle').show();
-		$('#divIntro').show();
-        $('div.footer-wrapper').show();
-        $(".sst-controls").hide();
-		$(".sst-round-category-selection").hide();
-		$("#divSheets").hide();
-		break;
+	$("#divBouldering").show();
+	$('#pagetitle').show();
+	$('#divIntro').show();
+	$('div.footer-wrapper').show();
+	$(".sst-controls").hide();
+	$(".sst-round-category-selection").hide();
+	$("#divSheets").hide();
+	break;
     case 0:
-		$("#divBouldering").hide();
-		$('#pagetitle').hide();
-		$('#divIntro').hide();
-        $('div.footer-wrapper').hide();
-        $(".sst-controls").show();
-		$(".sst-round-category-selection").show();
-		$("#divSheets").show();
-		break;
+	$("#divBouldering").hide();
+	$('#pagetitle').hide();
+	$('#divIntro').hide();
+	$('div.footer-wrapper').hide();
+	$(".sst-controls").show();
+	$(".sst-round-category-selection").show();
+	$("#divSheets").show();
+	break;
     }
     $("#sst-eventid-span").text($("#divEvent #divTabHeaders").attr("data-eventid"));
+}
+
+function loadStyle(cssfile)
+{
+    $("head").append($('<style></style>').load(cssfile));
+}
+
+function loadScript(jsfile)
+{
+    console.log(jsfile);
+
+    $.getScript(jsfile,
+		function( data, textStatus, jqxhr ) {
+		    if (jqxhr.status == 200) {
+			console.log( "%s loaded", jsfile );
+			return 1;
+		    } else {
+			console.log( "%s failed to load", jsfile );
+			return -1;
+		    }
+		});
 }
 
 if (window.attachEvent) {
