@@ -85,3 +85,19 @@ function sstonSaveScoresOnsightResponse(objXMLHTTP) {     // Does not update dat
 
     return false;
 }
+
+function sstChangeRound(catName, rid) {
+    // Change Round
+    var t = $("<span></span>");
+    var a = $("<a></a>");
+    t.append(a);
+    ipjUSACRoundClick(t[0], sstGetEventId(), sstGetDisciplineId, sstCategoryName2CatId[catName], sstCategoryName2Gender[catName], rid);
+}
+
+function sstShowRoundResults(catName, rid) {
+    var t = $("<input></input>");
+    var label = $("<label></label>");
+    var d = $("<div></div>").append(t).append(label);
+    
+    ipjUSACShowOnsightTotals(t[0], sstGetEventId(), sstGetDisciplineId(), sstCategoryName2CatId[catName], sstCategoryName2Gender[catName], rid);  // if returns false, then there was data that the user entered that should be saved first
+}

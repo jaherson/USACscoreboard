@@ -55,7 +55,10 @@ var sstRoundName2Rid = {   // TODO - these values were good in the TEST Regional
     Qualifiers: 1,
     Finals: 0,
     SuperFinals: -1,
-    SemiFinal:2            // TODO - Guessing
+    SemiFinal: 2,            // TODO - Guessing
+    Qualifier: 1,           // TODO - hack stupid 's' at the end
+    Final: 0,
+    SuperFinal: -1
 };
 var sstRid2RoundAbbrev = { // TODO - these values were good in the TEST Regional and Divisional
     "1": "Q",
@@ -428,17 +431,28 @@ function sstCompareCVM(categoryName, cvmMain, cvm2nd) {
     sstPrint(categoryName + " comparison complete.",true);
 }
 
-function sstPrint(s, isGood) {
+function sstPrint(s, isGood, fixItFunction) {
+    var p = $("<p></p>")
+        .addClass("sst-compare-result-p")
+        .addClass(isGood ? "sst-good" : "")
+        .text(s);
+
+    if (fixItFunction) {
+        p.append($("<a></a>")
+            .addClass("sst-compare-result-fixit")
+            .click(fixItFunction)
+            .text("Fix it!"));
+    }
+
     $("#sst-compare-results-div")
-        .append($("<p></p>")
-            .addClass("sst-compare-result-p")
-            .addClass(isGood ? "sst-good":"")
-            .text(s)
-        );
+        .append(p);
 }
 function sstPrintResetShow() {
     $("#sst-compare-results-div").empty();
     $("#sst-compare-results-wrapper").show();
+}
+function sstPrintHideFixIt(target) {
+    $(target).hide();
 }
 
 function sstGetJQArrayClimbers(cvm) {
@@ -478,11 +492,13 @@ function sstCheckRankComputationClicked() {
             sstCheckRankCompClosure(cvmOnWebPage)
             );
         } else {
-            sstPrint(cvmOnWebPage.Name + " are not currently showing round ranks.", true);
+            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function(evt) { sstShowRoundResults(catName, sstRoundName2Rid[cvmOnWebPage.RoundName]);sstPrintHideFixIt(evt.target) });
         }
     });
     
 }
+
+
 function sstCheckRankCompClosure(cvmOnWebPage) {
     return function(sheetCVM) {
         sstCheckRankComp(sheetCVM, cvmOnWebPage);
