@@ -16,6 +16,7 @@ function scoreboardInit()
     loadStyle("/scoreboard/sst.css");
 
     loadScript("/scoreboard/simplescoring.js");
+    loadScript("/scoreboard/senddata2usac.js");
 
     divBouldering
 	.before($('<div id="sst-partialHTML" style="display:none;">')
