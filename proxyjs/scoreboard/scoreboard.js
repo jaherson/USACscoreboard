@@ -23,7 +23,8 @@ function scoreboardInit()
 	.load("/scoreboard/partialHTMLforSimpleScoring.html"));
 
     var contentArea = $('div.contentarea.content-container');
-    contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe style="width: 100%; height: 700px;"></iframe></div><center>'));
+    contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe style="width: 100%; height: 700px;"></iframe></div>' +
+        '<div id="sst-eventid-div">Event Id: <span id="sst-eventid-span"></span></div ><center>'));
 	changeIframeSrc(DEFAULTSHEETID);
 
 	setTimeout(waitForBoulderingTab, 1000);
@@ -67,7 +68,8 @@ function ScoringView(id) {
 		$("#divBouldering").show();
 		$('#pagetitle').show();
 		$('#divIntro').show();
-		$('div.footer-wrapper').show();
+        $('div.footer-wrapper').show();
+        $(".sst-controls").hide();
 		$(".sst-round-category-selection").hide();
 		$("#divSheets").hide();
 		break;
@@ -75,11 +77,13 @@ function ScoringView(id) {
 		$("#divBouldering").hide();
 		$('#pagetitle').hide();
 		$('#divIntro').hide();
-		$('div.footer-wrapper').hide();
+        $('div.footer-wrapper').hide();
+        $(".sst-controls").show();
 		$(".sst-round-category-selection").show();
 		$("#divSheets").show();
 		break;
     }
+    $("#sst-eventid-span").text($("#divEvent #divTabHeaders").attr("data-eventid"));
 }
 
 if (window.attachEvent) {
