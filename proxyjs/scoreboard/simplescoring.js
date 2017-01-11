@@ -1,4 +1,5 @@
-﻿//"use strict";
+﻿console.log("simplescoring.js is now loaded dynamically");
+//"use strict";
 
 //
 // CONSTANTS to access data inside score sheets
