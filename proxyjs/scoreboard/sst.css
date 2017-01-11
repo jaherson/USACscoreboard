@@ -24,7 +24,7 @@ table.sst-inside-fieldset {
     text-align: center;
     border-radius: 8px;
     border: 0;
-    background-color: #e31b31;
+    background-color: #d2292e;
     color: white;
     font-size: 14px;
 }
@@ -36,14 +36,14 @@ table.sst-inside-fieldset {
     text-align: center;
     border-radius: 8px;
     border: 0;
-    background-color: #002a5c;
+    background-color: #00295b;
     color: white;
     font-size: 14px;
     
 }
 
 td.far-right-cell-buttons {
-    width: 200px;
+    width: 88px;
     text-align: center;
 }
 
@@ -145,7 +145,7 @@ input.sst-toggle-yes-no + label:after {
     bottom: 0;
     right: 0;
     color: black;
-    font-family: "Roboto Slab", serif;
+    font-family: sans-serif;
     font-size: 18px;
     text-align: center;
     line-height: 30px;
@@ -154,7 +154,7 @@ input.sst-toggle-yes-no + label:after {
 input.sst-toggle-yes-no + label:before {
     background-color: #dddddd;
     content: attr(data-off);
-    color: gray;
+    color: #eeeeee;
     transition: transform 0.5s;
     backface-visibility: hidden;
 }
@@ -176,10 +176,10 @@ input.sst-toggle-yes-no:checked + label:after {
 }
 
 .sst-round-category-selection fieldset {
-            width:100px;   
+    width:auto;   
 } 
 .sst-compare-button-group-div fieldset {
-        width:auto;   
+    width:auto;   
 }
 
 fieldset {
