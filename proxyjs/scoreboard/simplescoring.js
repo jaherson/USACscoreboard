@@ -411,8 +411,8 @@ function sstCompareCVM(categoryName, cvmMain, cvm2nd) {
     var arrayNotIn2nd = arrayMainClimbers.not(array2ndClimbers);
     var arrayNotInMain = array2ndClimbers.not(arrayMainClimbers);
     if (arrayNotIn2nd.length > 0 || arrayNotInMain.length > 0) {
-        sstPrint("These climbers are not in the 2nd " + categoryName + "sheet:" + arrayNotIn2nd.join(', '));
-        sstPrint("These climbers are not in the current " + categoryName + "sheet:" + arrayNotInMain.join(', '));
+        sstPrint("These climbers are not in the 2nd " + categoryName + "sheet:" + arrayNotIn2nd.toArray().join(', '));
+        sstPrint("These climbers are not in the current " + categoryName + "sheet:" + arrayNotInMain.toArray().join(', '));
     }
 
     // check problems of each climber. Assumes all climbers are in Main and 2nd
@@ -472,7 +472,7 @@ function sstPrintFixItFinished(target) {
 
 function sstGetJQArrayClimbers(cvm) {
     return $($.map(cvm.Climbers, function (c) {
-        return c.Name;
+        return c.Name.toLowerCase();
     }));
 }
 
