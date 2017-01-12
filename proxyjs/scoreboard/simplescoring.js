@@ -55,7 +55,10 @@ var sstRoundName2Rid = {   // TODO - these values were good in the TEST Regional
     Qualifiers: 1,
     Finals: 0,
     SuperFinals: -1,
-    SemiFinal:2            // TODO - Guessing
+    SemiFinal: 2,            // TODO - Guessing
+    Qualifier: 1,           // TODO - hack stupid 's' at the end
+    Final: 0,
+    SuperFinal: -1
 };
 var sstRid2RoundAbbrev = { // TODO - these values were good in the TEST Regional and Divisional
     "1": "Q",
@@ -79,6 +82,7 @@ function sstActiveSheetChange(newId) {
 }
 var sstActiveSheetAutoConvertId = "";
 var sstActiveSheetAutoConvertName = "";
+var sstCheckRankFixRoundAndResultsShownAutomatically = false;
 
 //
 // Structure for element of climbersVM array data
@@ -428,17 +432,36 @@ function sstCompareCVM(categoryName, cvmMain, cvm2nd) {
     sstPrint(categoryName + " comparison complete.",true);
 }
 
-function sstPrint(s, isGood) {
-    $("#sst-compare-results-div")
-        .append($("<p></p>")
-            .addClass("sst-compare-result-p")
-            .addClass(isGood ? "sst-good":"")
-            .text(s)
-        );
+function sstPrint(s, isGood, fixItFunction) {
+    var p = $("<p></p>")
+        .addClass("sst-compare-result-p")
+        .addClass(isGood ? "sst-good" : "")
+        .text(s);
+
+    if (fixItFunction) {
+        p.append($("<a></a>")
+            .addClass("sst-compare-result-fixit")
+            .click(fixItFunction)
+            .text("Fix it!"));
+    }
+
+    var resultsDiv = $("#sst-compare-results-div")
+        .append(p);
+
+    var ps = $("#sst-compare-results-div").children('p');
+    ps.sort(function(a, b) {
+        return a.textContent.localeCompare(b.textContent);
+    });
+    ps.detach().appendTo(resultsDiv);
 }
 function sstPrintResetShow() {
     $("#sst-compare-results-div").empty();
+    $("#sst-compare-auto-div").hide();
     $("#sst-compare-results-wrapper").show();
+}
+function sstPrintFixItFinished(target) {
+    //$(target).hide();
+    $(target).text("A fix was attempted.  Try compare again.");
 }
 
 function sstGetJQArrayClimbers(cvm) {
@@ -466,23 +489,20 @@ function sstCheckRankComputationClicked() {
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
     sstPrintResetShow();
+    $("#sst-compare-auto-div").show();
 
+    sstCheckRankFixRoundAndResultsShownAutomatically = $("#sst-compare-fix-usacpage-automatic-checkbox")[0].checked;
     // compare the current sheet with the currently shown ranking in whatever round is shown
     SHEETNAMES.forEach(function (catName) {
         var cvmOnWebPage = new CategoryVM();
         cvmOnWebPage.Name = catName;
         sstFindClimbers(cvmOnWebPage);
 
-        if (cvmOnWebPage.IsRankGathered) {
-            sstPullSheetData(sstActiveSheetId, catName,
-            sstCheckRankCompClosure(cvmOnWebPage)
-            );
-        } else {
-            sstPrint(cvmOnWebPage.Name + " are not currently showing round ranks.", true);
-        }
+        sstPullSheetData(sstActiveSheetId, catName, sstCheckRankCompClosure(cvmOnWebPage));
     });
     
 }
+
 function sstCheckRankCompClosure(cvmOnWebPage) {
     return function(sheetCVM) {
         sstCheckRankComp(sheetCVM, cvmOnWebPage);
@@ -490,7 +510,31 @@ function sstCheckRankCompClosure(cvmOnWebPage) {
 }
 function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
     if (sheetCVM.RoundName.substring(0, 4) != cvmOnWebPage.RoundName.substring(0, 4)) {
-        sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]");
+        if (sstCheckRankFixRoundAndResultsShownAutomatically) {
+            sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "].  Attempting to change now. Try Compare again.",
+                true);
+            sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]);
+        } else {
+            sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]",
+                true,
+                function(evt) {
+                    sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]);
+                    sstPrintFixItFinished(evt.target)
+                });
+        }
+        return;
+    }
+
+    if (!cvmOnWebPage.IsRankGathered) {
+        if (sstCheckRankFixRoundAndResultsShownAutomatically) {
+            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.  Attempting to fix that now. Try Compare again.", true);
+            sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]);
+        } else {
+            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function(evt) {
+                sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]);
+                sstPrintFixItFinished(evt.target)
+            });
+        }
         return;
     }
 

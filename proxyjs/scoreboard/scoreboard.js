@@ -69,7 +69,7 @@ function ScoringView(id) {
 	$('#pagetitle').show();
 	$('#divIntro').show();
 	$('div.footer-wrapper').show();
-	$(".sst-controls").hide();
+	$("#sst-controls").hide();
 	$(".sst-round-category-selection").hide();
 	$("#divSheets").hide();
 	break;
@@ -78,7 +78,7 @@ function ScoringView(id) {
 	$('#pagetitle').hide();
 	$('#divIntro').hide();
 	$('div.footer-wrapper').hide();
-	$(".sst-controls").show();
+	$("#sst-controls").show();
 	$(".sst-round-category-selection").show();
 	$("#divSheets").show();
 	break;
@@ -90,6 +90,7 @@ function loadStyle(cssfile)
 {
     $("head").append($('<style></style>').load(cssfile));
 }
+/* 
 
 function loadScript(jsfile)
 {
@@ -106,6 +107,26 @@ function loadScript(jsfile)
 		    }
 		});
 }
+*/  // replaced $.getScript with this bit by Alex Sorokoletov from http://stackoverflow.com/questions/690781/debugging-scripts-added-via-jquery-getscript-function
+var loadScript = function (path) {
+    var result = $.Deferred(),
+        script = document.createElement("script");
+    script.async = "async";
+    script.type = "text/javascript";
+    script.src = path;
+    script.onload = script.onreadystatechange = function (_, isAbort) {
+        if (!script.readyState || /loaded|complete/.test(script.readyState)) {
+            if (isAbort)
+                result.reject();
+            else
+                result.resolve();
+        }
+    };
+    script.onerror = function () { result.reject(); };
+    $("head")[0].appendChild(script);
+    return result.promise();
+};
+
 
 if (window.attachEvent) {
     window.attachEvent('onload', scoreboardInit);
