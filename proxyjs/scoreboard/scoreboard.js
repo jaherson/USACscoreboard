@@ -25,7 +25,7 @@ function scoreboardInit()
     var contentArea = $('div.contentarea.content-container');
     contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe style="width: 100%; height: 700px;"></iframe></div>' +
         '<div id="sst-eventid-div">Event Id: <span id="sst-eventid-span"></span></div ><center>'));
-	changeIframeSrc(DEFAULTSHEETID);
+//	changeIframeSrc(DEFAULTSHEETID);
 
 	setTimeout(waitForBoulderingTab, 1000);
 

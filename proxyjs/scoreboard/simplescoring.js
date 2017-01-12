@@ -279,8 +279,6 @@ function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
 	    //console.log(categoryVM);
             runWhenSuccess(categoryVM);
             
-	}, function (response) {
-            alert("Error trying to pull " + categoryName);
 	});
 }
 
@@ -608,40 +606,26 @@ function sstGenAwaitingName(rid,catid,g,pid) {
     return sstLookupCatName(catid, g) + "-" + sstRid2RoundAbbrev[rid] + pid;
 }
 
-function gapiBatchGet(options, responseCB, errorCB)
+function gapiBatchGet(options, responseCB)
 {
     var url = '/gapi/batchGet?' + JSON.stringify(options);
-
-    var jqxhr = $.getJSON(url,function(data) {
-	var response = {'result': data};
-	responseCB(response);
-    })
-	.fail(function() {
-	    console.log( "gapi failed" );
-	})
-	.always(function() {
-	    console.log( "gapi done" );
-	});
+    gapiProxy(url, responseCB);
 }
-
-
-
-
-
 function gapidriveFilesCopy(options, responseCB) {
     var url = '/gapi/filesCopy?' + JSON.stringify(options);
-    gapiProx(url, responseCB);
+    gapiProxy(url, responseCB);
 }
 function gapidriveFilesList(options, responseCB) {
+    console.log(options);
     var url = '/gapi/filesList?' + JSON.stringify(options);
-    gapiProx(url, responseCB);
+    gapiProxy(url, responseCB);
 }
 function gapidriveFilesDelete(options, responseCB) {
     var url = '/gapi/filesDelete?' + JSON.stringify(options);
-    gapiProx(url, responseCB);
+    gapiProxy(url, responseCB);
 }
 
-function gapiProx(url, responseCB) {
+function gapiProxy(url, responseCB) {
     var jqxhr = $.getJSON(url, function(data) {
             var response = { 'result': data };
             responseCB(response);
@@ -719,3 +703,25 @@ function sstSearchDestroyACById(fileId) {
         console.log('Deleted previous autoconverted file.');    // note that resp is empty if successful
     });
 }
+
+// gapi test functions
+function gapidriveFilesListTest()
+{
+    options = {
+	fileId: '0B8VRfGThSdoAbmJVUzh0OTBwYXc'
+    };
+	
+    gapidriveFilesList(options, testListCB);
+}
+
+function testListCB(response)
+{
+    console.log('Files:');
+    console.log(response);
+    var files = response.result.files;
+    for (var i = 0; i < files.length; i++) {
+	var file = files[i];
+	console.log('%s (%s)', file.name, file.id);
+    }
+}
+
