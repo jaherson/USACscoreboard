@@ -88,10 +88,10 @@ function sstonSaveScoresOnsightResponse(objXMLHTTP) {     // Does not update dat
 
 function sstChangeRound(catName, rid) {
     // Change Round
-    var t = $("<span></span>");
+    var s = $("<span></span>");
     var a = $("<a></a>");
-    t.append(a);
-    ipjUSACRoundClick(t[0], sstGetEventId(), sstGetDisciplineId, sstCategoryName2CatId[catName], sstCategoryName2Gender[catName], rid);
+    s.append(a);
+    ipjUSACRoundClick(a[0], sstGetEventId(), sstGetDisciplineId(), sstCategoryName2CatId[catName], sstCategoryName2Gender[catName], rid);
 }
 
 function sstShowRoundResults(catName, rid) {

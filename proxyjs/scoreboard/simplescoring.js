@@ -451,8 +451,9 @@ function sstPrintResetShow() {
     $("#sst-compare-results-div").empty();
     $("#sst-compare-results-wrapper").show();
 }
-function sstPrintHideFixIt(target) {
-    $(target).hide();
+function sstPrintFixItFinished(target) {
+    //$(target).hide();
+    $(target).text("Done.  Try compare again.");
 }
 
 function sstGetJQArrayClimbers(cvm) {
@@ -487,17 +488,10 @@ function sstCheckRankComputationClicked() {
         cvmOnWebPage.Name = catName;
         sstFindClimbers(cvmOnWebPage);
 
-        if (cvmOnWebPage.IsRankGathered) {
-            sstPullSheetData(sstActiveSheetId, catName,
-            sstCheckRankCompClosure(cvmOnWebPage)
-            );
-        } else {
-            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function(evt) { sstShowRoundResults(catName, sstRoundName2Rid[cvmOnWebPage.RoundName]);sstPrintHideFixIt(evt.target) });
-        }
+        sstPullSheetData(sstActiveSheetId, catName, sstCheckRankCompClosure(cvmOnWebPage));
     });
     
 }
-
 
 function sstCheckRankCompClosure(cvmOnWebPage) {
     return function(sheetCVM) {
@@ -506,7 +500,13 @@ function sstCheckRankCompClosure(cvmOnWebPage) {
 }
 function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
     if (sheetCVM.RoundName.substring(0, 4) != cvmOnWebPage.RoundName.substring(0, 4)) {
-        sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]");
+        sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]",
+            true,
+            function (evt) { sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]); sstPrintFixItFinished(evt.target) });
+        return;
+    }
+    if (!cvmOnWebPage.IsRankGathered) {
+        sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function (evt) { sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]); sstPrintFixItFinished(evt.target) });
         return;
     }
 
