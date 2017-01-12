@@ -16,6 +16,29 @@ table.sst-inside-fieldset {
 #sst-controls div.sst-compare-button-group-div {
     margin-right: 10px;
 }
+#sst-controls div.sst-active-sheet-control-div table {
+    background-color: #CACACA;
+    height: 60px;
+    text-align: center;
+}
+#sst-controls table.whole-width {
+    width: 100%;
+}
+#sst-controls div.sst-active-sheet-control-div table td.first {
+    width: 17%;
+    min-width: 140px;
+    font-size: 14px;
+    font-weight: 700;
+}
+#sst-controls div.sst-active-sheet-control-div table td.second {
+    width: auto;
+    font-size: 14px;
+}
+#sst-controls div.sst-active-sheet-control-div table td.third {
+    width: 23%;
+    min-width: 400px;
+}    
+
 #sst-push-to-usac {
     padding: 2px;
     width: 70px;
@@ -29,10 +52,8 @@ table.sst-inside-fieldset {
     font-size: 14px;
     cursor: pointer;
 }
-.sst-compare-button-group-div button.compare-group {
+button.sst-blue-button {
     padding: 4px;
-    width: 122px;
-    height: 60px;
     margin-left: 5px;
     text-align: center;
     border-radius: 8px;
@@ -40,7 +61,17 @@ table.sst-inside-fieldset {
     background-color: #00295b;
     color: white;
     font-size: 14px;
-    
+}
+td.compare-group-td {
+    padding: 0;
+}
+div.sst-compare-button-group-div button.sst-blue-button {
+    width: 122px;
+    height: 60px;
+}
+div.sst-active-sheet-control-div button.sst-blue-button {
+    width: 340px;
+    height: 40px;
 }
 
 td.far-right-cell-buttons {
@@ -184,10 +215,10 @@ input.sst-toggle-yes-no:checked + label:after {
 }
 
 .sst-round-category-selection fieldset {
-    width:auto;   
+    width:435px;   
 } 
 .sst-compare-button-group-div fieldset {
-    width:auto;   
+    width:285px;   
 }
 
 fieldset {

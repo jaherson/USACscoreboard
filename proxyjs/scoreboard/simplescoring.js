@@ -82,6 +82,11 @@ function sstActiveSheetChange(newId) {
 }
 var sstActiveSheetAutoConvertId = "";
 var sstActiveSheetAutoConvertName = "";
+var sstDoubleCheckSheetId = "";
+var sstDoubleCheckExcelXLSId = "";
+var sstDoubleCheckExcelXLSAutoConvertId = "";
+var sstDoubleCheckExcelXLSAutoConvertName = "";
+
 var sstCheckRankFixRoundAndResultsShownAutomatically = false;
 
 //
@@ -97,7 +102,7 @@ var CategoryVM = function() {
     this.MemberIdOffset = -1;
     this.IsRankGathered = false;
     this.Climbers = [];
-}
+};
 var ClimberVM = function () {
     var self = this;
 
@@ -364,24 +369,19 @@ function sstPushDatatoUSACCallback(cvm) {
 function sstCompareClicked() {
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
+    if (!sstDoubleCheckSheetId && !sstDoubleCheckExcelXLSId)
+        alert("You must setup the second workbook to double check first");
+
     sstPrintResetShow();
 
-    // assume comparing with current sheet, and now need to select the other sheet
-    sstShowPicker(sstPickerDoubleCheckSheetCallback);
-}
-
-function sstPickerDoubleCheckSheetCallback(data) {
-    var url = 'nothing';
-    if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-        var fileId = data.docs[0].id;
-        if (data.docs[0].mimeType === GOOGLESHEETSMIMETYPE) {
-            // now pull data on both sheets
-            sstCompare(fileId);
-        } else if (data.docs[0].mimeType === EXCELXLSXMIMETYPE) {         // an XLSX fileId  0B8VRfGThSdoAQzVXV3k5UFN1VG8
-            // convert and then compare
-             sstTryAutoConvert(sstCompare,fileId,data.docs[0].name);
-        }
+    if (sstDoubleCheckExcelXLSId) {
+        // convert and then compare
+        sstTryAutoConvert(sstCompare, sstDoubleCheckExcelXLSId, sstDoubleCheckExcelXLSName);
+        return;
     }
+
+    
+    sstCompare(sstDoubleCheckSheetId);
 }
 
 function sstCompare(dblCheckFileId) {
@@ -512,7 +512,7 @@ function sstCheckRankComputationClicked() {
 function sstCheckRankCompClosure(cvmOnWebPage) {
     return function(sheetCVM) {
         sstCheckRankComp(sheetCVM, cvmOnWebPage);
-    }
+    };
 }
 function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
     if (sheetCVM.RoundName.substring(0, 4) != cvmOnWebPage.RoundName.substring(0, 4)) {
@@ -525,7 +525,7 @@ function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
                 true,
                 function(evt) {
                     sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]);
-                    sstPrintFixItFinished(evt.target)
+                    sstPrintFixItFinished(evt.target);
                 });
         }
         return;
@@ -538,7 +538,7 @@ function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
         } else {
             sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function(evt) {
                 sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]);
-                sstPrintFixItFinished(evt.target)
+                sstPrintFixItFinished(evt.target);
             });
         }
         return;
@@ -624,3 +624,98 @@ function gapiBatchGet(options, responseCB, errorCB)
 	});
 }
 
+
+
+
+
+function gapidriveFilesCopy(options, responseCB) {
+    var url = '/gapi/filesCopy?' + JSON.stringify(options);
+    gapiProx(url, responseCB);
+}
+function gapidriveFilesList(options, responseCB) {
+    var url = '/gapi/filesList?' + JSON.stringify(options);
+    gapiProx(url, responseCB);
+}
+function gapidriveFilesDelete(options, responseCB) {
+    var url = '/gapi/filesDelete?' + JSON.stringify(options);
+    gapiProx(url, responseCB);
+}
+
+function gapiProx(url, responseCB) {
+    var jqxhr = $.getJSON(url, function(data) {
+            var response = { 'result': data };
+            responseCB(response);
+        })
+        .fail(function() {
+            console.log("gapi failed");
+        })
+        .always(function() {
+            console.log("gapi done");
+        });
+}
+
+
+//
+// Autoconvert
+//
+
+function sstCopyXLS2GoogleSheet(originFileId, newTitle, runAfterCopy) {
+    var request = gapidriveFilesCopy({
+        'fileId': originFileId,
+        'mimeType': 'application/vnd.google-apps.spreadsheet',
+        'name': newTitle
+    },
+        function (resp) {
+        console.log('Copy ID: ' + resp.id);
+        runAfterCopy(resp);
+    });
+}
+
+function sstTryAutoConvert(callback, xlsId, xlsName) {   // use 2 globals (if parameters are null) and a nullable callback parameter
+    if (!xlsId && sstActiveSheetAutoConvertId === "") {
+        if (callback)
+            callback(false);
+        return; // nothing to convert
+    }
+
+    xlsName = (xlsName) ? xlsName : sstActiveSheetAutoConvertName;
+    sstSearchDestroyACByFilename(xlsName + "_autoconverted"); // Hope this never deletes the new copy....
+
+    $("#sst-awaiting-autoconvert").show();
+    sstCopyXLS2GoogleSheet(
+        (xlsId) ? xlsId : sstActiveSheetAutoConvertId,
+        xlsName + "_autoconverted",
+        function (response) {
+            $("#sst-awaiting-autoconvert").hide();
+            if (!xlsId)   // only update the activesheet if we were trying to convert the old activesheet
+                sstActiveSheetChange(response.result.id);
+            if (callback)
+                callback(response.result.id);
+        }
+    );
+
+}
+
+function sstSearchDestroyACByFilename(filename) {
+    var request = gapidriveFilesList({
+        'q': "name='" + filename + "'",
+        'pageSize': 200,
+        'fields': "nextPageToken, files(id, name, trashed)"
+    },
+        function (resp) {
+        var files = resp.files;
+        if (files && files.length > 0) {
+            for (var i = 0; i < files.length; i++) {
+                sstSearchDestroyACById(files[i].id);
+            }
+        }
+    });
+}
+function sstSearchDestroyACById(fileId) {
+    var request = gapidriveFilesDelete({
+        'fileId': fileId
+    },
+        function (resp) {
+        console.log('Deleted previous autoconverted file.');    // note that resp is empty if successful
+    });
+}
