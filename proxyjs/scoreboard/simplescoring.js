@@ -119,6 +119,12 @@ var ProbVM = function () {
 // Get data about active user's scoring module
 //
 
+function sstGetEventRegion() {
+    rx = /^Event.Region\:\W(.*)$/gm;
+    arr = rx.exec($("#divEventName").attr("title"));
+    return arr[1].substr(0,3);
+}
+
 function sstGetEventId() {
     var edivTabHeaders = document.querySelector(".usac-view .event-view .tab-headers");
     var eid = edivTabHeaders.getAttribute("data-eventid");
