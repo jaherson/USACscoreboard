@@ -28,6 +28,26 @@ headselect.func = function (node) {
 } 
 selects.push(headselect);
 
+function IsImage(url)
+{
+    return (url.indexOf('.jpg') != -1 ||
+	    url.indexOf('.JPG') != -1 ||
+	    url.indexOf('.jpeg') != -1 ||	
+	    url.indexOf('.png') != -1 ||
+	    url.indexOf('.gif') != -1 ||
+	    url.indexOf('.ico') != -1);
+}
+	 
+
+function IsJunk(url)
+{
+    return (url.indexOf('/Assets/') != -1 ||
+	    url.indexOf('/scripts/') != -1 ||
+            url.indexOf('/SharedSites/') != -1 ||
+            url.indexOf('/system/') != -1 ||
+	    url.indexOf('/CM/WebUI/') != -1);
+}
+
 var proxy;
 var harmon=require('harmon');
 
@@ -69,7 +89,8 @@ module.exports = {
 	    var bytesIn = response.socket._bytesDispatched;
 	    var bytesOut = response.socket.bytesRead;
 
-	    console.log("%s req(%d) res(%d)", url, bytesIn, bytesOut);
+	    if (!IsJunk(url))
+		console.log("%s req(%d) res(%d)", url, bytesIn, bytesOut);
 	});
 
 	
@@ -80,26 +101,16 @@ module.exports = {
     },
 
     Get : function(req, res) {
-	var isImage =
-	    req.url.indexOf('.jpg') != -1 ||
-	    req.url.indexOf('.JPG') != -1 ||
-	    req.url.indexOf('.jpeg') != -1 ||	
-	    req.url.indexOf('.png') != -1 ||
-	    req.url.indexOf('.gif') != -1;
 
-	var isJunk =
-	    req.url.indexOf('/Assets/') != -1 ||
-	    req.url.indexOf('/scripts/') != -1 ||
-            req.url.indexOf('/SharedSites/') != -1 ||
-            req.url.indexOf('/system/') != -1 ||
-	    req.url.indexOf('/cm/webui/') != -1;
-
-	if (isImage && images404) {
+	if (IsImage(req.url) && images404) {
             res.writeHead(404);
             res.end();
 	    return;
 	}
 
+	if (!IsJunk(req.url))
+	    console.log("GET %s", req.url);
+	
 	req.headers['host'] = remoteHost;
 	if (req.headers['referer']) {
 	    req.headers['referer'] = req.headers['referer'].replace(proxyHost, remoteHost);    
