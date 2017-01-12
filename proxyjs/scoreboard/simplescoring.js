@@ -444,8 +444,14 @@ function sstPrint(s, isGood, fixItFunction) {
             .text("Fix it!"));
     }
 
-    $("#sst-compare-results-div")
+    var resultsDiv = $("#sst-compare-results-div")
         .append(p);
+
+    var ps = $("#sst-compare-results-div").children('p');
+    ps.sort(function(a, b) {
+        return a.textContent.localeCompare(b.textContent);
+    });
+    ps.detach().appendTo(resultsDiv);
 }
 function sstPrintResetShow() {
     $("#sst-compare-results-div").empty();
