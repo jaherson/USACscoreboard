@@ -82,6 +82,7 @@ function sstActiveSheetChange(newId) {
 }
 var sstActiveSheetAutoConvertId = "";
 var sstActiveSheetAutoConvertName = "";
+var sstCheckRankFixRoundAndResultsShownAutomatically = false;
 
 //
 // Structure for element of climbersVM array data
@@ -455,11 +456,12 @@ function sstPrint(s, isGood, fixItFunction) {
 }
 function sstPrintResetShow() {
     $("#sst-compare-results-div").empty();
+    $("#sst-compare-auto-div").hide();
     $("#sst-compare-results-wrapper").show();
 }
 function sstPrintFixItFinished(target) {
     //$(target).hide();
-    $(target).text("Done.  Try compare again.");
+    $(target).text("A fix was attempted.  Try compare again.");
 }
 
 function sstGetJQArrayClimbers(cvm) {
@@ -487,7 +489,9 @@ function sstCheckRankComputationClicked() {
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
     sstPrintResetShow();
+    $("#sst-compare-auto-div").show();
 
+    sstCheckRankFixRoundAndResultsShownAutomatically = $("#sst-compare-fix-usacpage-automatic-checkbox")[0].checked;
     // compare the current sheet with the currently shown ranking in whatever round is shown
     SHEETNAMES.forEach(function (catName) {
         var cvmOnWebPage = new CategoryVM();
@@ -506,13 +510,31 @@ function sstCheckRankCompClosure(cvmOnWebPage) {
 }
 function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
     if (sheetCVM.RoundName.substring(0, 4) != cvmOnWebPage.RoundName.substring(0, 4)) {
-        sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]",
-            true,
-            function (evt) { sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]); sstPrintFixItFinished(evt.target) });
+        if (sstCheckRankFixRoundAndResultsShownAutomatically) {
+            sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "].  Attempting to change now. Try Compare again.",
+                true);
+            sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]);
+        } else {
+            sstPrint(sheetCVM.Name + " is set to different rounds. [" + sheetCVM.RoundName + " vs. " + cvmOnWebPage.RoundName + "]",
+                true,
+                function(evt) {
+                    sstChangeRound(sheetCVM.Name, sstRoundName2Rid[sheetCVM.RoundName]);
+                    sstPrintFixItFinished(evt.target)
+                });
+        }
         return;
     }
+
     if (!cvmOnWebPage.IsRankGathered) {
-        sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function (evt) { sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]); sstPrintFixItFinished(evt.target) });
+        if (sstCheckRankFixRoundAndResultsShownAutomatically) {
+            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.  Attempting to fix that now. Try Compare again.", true);
+            sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]);
+        } else {
+            sstPrint(cvmOnWebPage.Name + " on the USAC page is not currently showing round results.", true, function(evt) {
+                sstShowRoundResults(cvmOnWebPage.Name, sstRoundName2Rid[cvmOnWebPage.RoundName]);
+                sstPrintFixItFinished(evt.target)
+            });
+        }
         return;
     }
 

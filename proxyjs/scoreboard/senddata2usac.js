@@ -68,14 +68,14 @@ function sstonSaveScoresOnsightResponse(objXMLHTTP) {     // Does not update dat
             ipjUSACFlagForRefresh(true);    // TODO - maybe this should be for all responses?
             var tab = document.querySelector(".usac-view .event-view .tab-header[data-disciplineid='" + Math.abs(did) + "']");
             var tabBody = document.querySelector(".usac-view .event-view .tab-body[data-disciplineid='" + Math.abs(did) + "']");
-            alert("Scores could not be saved because the current round is no longer available for scoring. Click OK to refresh.");
+            alert("USAC did not acknowledge success. Try pushing scores again. ");
             tabBody.innerHTML = s.substring(s.indexOf("|") + 1);
             tab.setAttribute("data-loaded", "true");
             ipjUSACSetVisibleCategories(did);
         }
-        alert('An error occurred saving scores for onsight. Perhaps you did not complete a round to allow for entering scores of this selected round for the selected category.' + s);
+        alert('An error occurred saving scores for onsight. Perhaps you did not Complete Round (previous), to allow for entering scores of this selected round for the selected category.' + s);
     } catch (e) {
-        alert('An exception occurred saving scores for onsight.');
+        alert('An exception occurred saving scores for onsight. Try pushing scores again.');
     } finally {
         // TODO - ipjUSACBusy = false;
         if (r != "s3") {
