@@ -51,6 +51,7 @@ function waitForBoulderingTab() {
 
 	ScoringView(0);
 
+   sstSheetSelectInit();
     divSST.show(); //weird ScoringView doesn't work on this?
 }
 

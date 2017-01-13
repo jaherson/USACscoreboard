@@ -1,7 +1,7 @@
 ﻿<div id="divScoringView" style="margin:20px;">
   Scoring:
-  <label><input type="radio" name="view" onclick="ScoringView(0);" id="_sheetView" checked="checked"> Sheets </label>
-  <label><input type="radio" name="view" onclick="ScoringView(1);" id="_usacView"> USAC</label>
+  <label><input type="radio" name="view" onclick="ScoringView(0);" id="_sheetView" checked="checked"> RCscoring.org </label>
+  <label><input type="radio" name="view" onclick="ScoringView(1);" id="_usacView"> usaclimbing.org</label>
 </div>
 
 <div id="sst-controls">
@@ -13,12 +13,12 @@
                         <tr>
                             <td class="first">
                                 <div class="sst-current-sheet-label">
-                                    Current Sheet:
+                                  Current Sheet:
                                 </div>
                             </td>
                             <td class="second">
                                 <div class="sst-active-sheet-name-div">
-                                    current sheet filename here
+				  <select id="SheetSelectList" onchange="changeIframeSrc(this.value);"> </select> 
                                 </div>
                             </td>
                             <td class="third">
