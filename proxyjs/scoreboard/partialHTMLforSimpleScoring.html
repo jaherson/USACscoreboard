@@ -5,9 +5,32 @@
 </div>
 
 <div id="sst-controls">
-    <table>
+    <table class="whole-width">
         <tr>
-            <td>
+            <td colspan="3">
+                <div class="sst-active-sheet-control-div">
+                    <table class="whole-width">
+                        <tr>
+                            <td class="first">
+                                <div class="sst-current-sheet-label">
+                                    Current Sheet:
+                                </div>
+                            </td>
+                            <td class="second">
+                                <div class="sst-active-sheet-name-div">
+                                    current sheet filename here
+                                </div>
+                            </td>
+                            <td class="third">
+                                <button id="sst-change-active-sheet-button" class="sst-blue-button" type="button" onclick="sstChangeSheetClicked()">Change current sheet, or select .xlsx to autoconvert</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="sst-compare-group-td">
                 <div class="sst-compare-button-group-div">
 
                     <fieldset>
@@ -15,10 +38,10 @@
                         <table class="sst-inside-fieldset">
                             <tr>
                                 <td>
-                                    <button id="sst-compare-excel" class="compare-group" type="button" onclick="sstCompareClicked()">Another Google<br/>sheet or .xlsx</button>
+                                    <button id="sst-compare-excel" class="sst-blue-button compare-group" type="button" onclick="sstCompareClicked()">Another Google<br/>sheet or .xlsx</button>
                                 </td>
                                 <td>
-                                    <button id="sst-compare-usac" class="compare-group"type="button" onclick="sstCheckRankComputationClicked()">USAC computed ranking</button>
+                                    <button id="sst-compare-usac" class="sst-blue-button compare-group"type="button" onclick="sstCheckRankComputationClicked()">USAC computed ranking</button>
                                 </td>
                             </tr>
                         </table>

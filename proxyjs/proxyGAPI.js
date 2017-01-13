@@ -14,7 +14,7 @@ var SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 var TOKEN_PATH = './token.json';
 
 // Load client secrets from a local file.
-function getAuth() 
+function gapiAuth() 
 {
     fs.readFile('client_secret.json', function processClientSecrets(err, content) {
 	if (err) {
@@ -103,6 +103,7 @@ function storeToken(token) {
 }
 
 /* application code */
+var gdrive = google.drive('v3');
 
 function clock(start) {
     if ( !start ) return process.hrtime();
@@ -110,25 +111,34 @@ function clock(start) {
     return Math.round((end[0]*1000) + (end[1]/1000000));
 }
 
-function proxyGAPIGet(req, res)
+function respond404(res)
 {
-    var t0 = clock();
-    var argv = req.url.split('?');
-    var url = argv[0];
-    var options = JSON.parse(decodeURIComponent(argv[1]));
-    options.auth = oauth2Client;
+    res.writeHead(404,
+		  {
+		      'Content-Type': 'text/plain'
+		  });
+    res.write('404 Not Found\n');
+    res.end();
+}
 
-    sheets.spreadsheets.values.batchGet(options, function(err, response) {
+var t0;
+function gapiFileList(options, req, res)
+{
+    t0 = clock();
+    options.auth = oauth2Client;
+    if (options.fileId) {
+	var query = "'"+ options.fileId + "' " + "in parents";
+	options.q = query;         //"'0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' in parents"
+    }
+    console.log(options);
+
+    gdrive.files.list(options, function(err, response) {
 	if (err) {
-	    console.log('GAPI error: ' + err);
+	    console.log('gapiFileList error: ' + err);
 	    return;
-	}
-	var t1 = clock(t0);
-	var ranges = response.valueRanges;
-	if (ranges.length == 0) {
-	    console.log('No data found.');
 	} else {
-	    console.log('gapi.batchGet(%s) in %dms:', options, t1);
+	    listCB(response);
+	    console.log('gapi.FileList: %d files in %dms:', response.files.length, clock()-t0);
 	    res.writeHead(200,
 			  {
 			      'Content-Type': 'application/json'
@@ -139,14 +149,93 @@ function proxyGAPIGet(req, res)
     });
 }
 
+function listCB(response)
+{
+    console.log('Files:');
+    var files = response.files;
+    for (var i = 0; i < files.length; i++) {
+	var file = files[i];
+	console.log('%s (%s)', file.name, file.id);
+    }
+}
+
+
+function gapiGet(req, res)
+{
+    console.log(req.url);
+    t0 = clock();
+    var argv = req.url.split('?');
+    var url = argv[0];
+    var options = JSON.parse(decodeURIComponent(argv[1]));
+    console.log(options);
+
+    if (req.url.indexOf('/gapi/filesList') == 0) {
+	gapiFileList(options, req, res);
+	return;
+    } else {
+	options.auth = oauth2Client;
+	sheets.spreadsheets.values.batchGet(options, function(err, response) {
+	    if (err) {
+		console.log('GAPI error: ' + err);
+		return;
+	    }
+	    var t1 = clock(t0);
+	    var ranges = response.valueRanges;
+	    if (ranges.length == 0) {
+		console.log('No data found.');
+		respond404(res);
+	    } else {
+		console.log('gapi.batchGet(%s) in %dms:', options, t1);
+		res.writeHead(200,
+			      {
+				  'Content-Type': 'application/json'
+			      });
+		res.write(JSON.stringify(response));
+		res.end();
+	    }
+	});
+    }
+}
+
+
+function gapiFileDelete(fileId) {
+    gdrive.files.delete({
+	auth: oauth2Client,
+	fileId: fileId
+    }, function(err, response) {
+	if (err) {
+            console.log('Delete error' + err);
+	} else {
+	    console.log(fileId + ' deleted');
+	}
+    });
+}
+
+function gapiFileCopy(fileId, newname, callback)
+{
+    gdrive.files.copy({
+	auth: oauth2Client,
+        fileId: fileId,
+	resource: {
+	    name: newname
+	},
+     }, function(err, response) {
+	 if (err) {
+	     console.log('gapiFileCopy error: ' + err);
+	 } else {
+	     callback(response);	     
+	 }
+     });
+}
+
 module.exports = {
     Init:  function() 
     {
-	getAuth();
+	gapiAuth();
     },
     Get: function(req, res)
     {
-	proxyGAPIGet(req, res);
+	gapiGet(req, res);
     }
 };
 
