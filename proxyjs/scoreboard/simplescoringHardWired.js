@@ -5,6 +5,24 @@
 // CONSTANTS to access data inside score sheets
 //
 var SHEETNAMES = ["FJR", "MJR", "FYA", "MYA", "FYB", "MYB", "FYC", "MYC", "FYD", "MYD"];
+var SHEETDATAADDRESS = '!A5:Z'; // the range address of interesting data on the sheet. Note the end column allows Google to just send the interesting rows...
+var CLIMBERNAMEOFFSET = 0;
+var PROBLEMOFFSETS = [
+    { Highhold: 5, Attempts: 6 },
+    { Highhold: 8, Attempts: 9 },
+    { Highhold: 11, Attempts: 12 },
+    { Highhold: 14, Attempts: 15 },
+    { Highhold: 17, Attempts: 18 },
+    { Highhold: 20, Attempts: 21 }
+];
+var SHEETNUMPROBLEMSADDRESS = '!C2'; // the range address of the number of problems for this round
+var SHEETTOPHOLDSADDRESS = '!H3:Z3'; // the range address of the top hold #'s of the problems
+var SHEETCLIMBERSINITADDRESS = "!A5";// used to push climber names, teamnames andd memberIds into a new scoring sheet
+var SHEETTOPHOLDOFFSETS = [0, 3, 6, 9, 12, 15];
+var SHEETDATAHEADERADDRESS = '!A4:Z4';
+var SHEETROUNDNAMEADDRESS = '!D2';   // the range address of the round name
+var SHEETRANKOFFSET = 4;
+
 
 //
 // CONSTANTS for USAC requests
@@ -112,9 +130,6 @@ var ProbVM = function () {
 //
 
 function sstGetEventRegion() {
-    if ($("#divEventName").length == 0)
-	return '201';
-    
     rx = /^Event.Region\:\W(.*)$/gm;
     arr = rx.exec($("#divEventName").attr("title"));
     return arr[1].substr(0,3);
@@ -174,27 +189,6 @@ function sstFindClimbers(cvm) {
 //
 // Google Sheets API
 //
-/* sheets hardwire version
-
-var SHEETDATAADDRESS = '!A5:Z'; // the range address of interesting data on the sheet. Note the end column allows Google to just send the interesting rows...
-var CLIMBERNAMEOFFSET = 0;
-var PROBLEMOFFSETS = [
-    { Highhold: 5, Attempts: 6 },
-    { Highhold: 8, Attempts: 9 },
-    { Highhold: 11, Attempts: 12 },
-    { Highhold: 14, Attempts: 15 },
-    { Highhold: 17, Attempts: 18 },
-    { Highhold: 20, Attempts: 21 }
-];
-var SHEETNUMPROBLEMSADDRESS = '!C2'; // the range address of the number of problems for this round
-var SHEETTOPHOLDSADDRESS = '!H3:Z3'; // the range address of the top hold #'s of the problems
-var SHEETCLIMBERSINITADDRESS = "!A5";// used to push climber names, teamnames andd memberIds into a new scoring sheet
-var SHEETTOPHOLDOFFSETS = [0, 3, 6, 9, 12, 15];
-var SHEETDATAHEADERADDRESS = '!A4:Z4';
-var SHEETROUNDNAMEADDRESS = '!D2';   // the range address of the round name
-var SHEETRANKOFFSET = 4;
-
-
 
 function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
 
@@ -331,11 +325,7 @@ function sstInitSheetWithNamesId(targetGoogleSheetId, cvm, runWhenSuccess) {
         alert("Error trying to push " + cvm.Name + ".  " + response.result.error.message);
     });
 }
-*/
 
-function sstInitSheetWithNamesId(targetGoogleSheetId, cvm, runWhenSuccess) {
-    console.log("sstInitSheetWithNamesId not implemented");
-}
 
 
 //
@@ -744,11 +734,11 @@ function sstLoadSheetSelect()
     var sheetSelect = $("#SheetSelectList");
     var DIVISION2FOLDERID = {
         "1": '0B8VRfGThSdoAVWhVRDNiM2otNVk', //div1
-        //"2": '0B8VRfGThSdoAa3hURXRsTGpzMjA', //div2
-        "2": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ', //div2 debug,
+        "2": 'needsomethinghere', //div2  TODO
         "8": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' //div8
     }
     var folderId = DIVISION2FOLDERID[sstGetEventRegion()[0]];
+
     var queryFolder = "'"+ folderId + "' " + "in parents";
     var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
     var query = '"' + queryMimeType + ' and ' +  queryFolder + '"';     // if this is ever used, need to keep Excel mimetype too...
@@ -756,152 +746,19 @@ function sstLoadSheetSelect()
     options.q = queryFolder; 
 
     gapidriveFilesList(options, function (response) {
+        console.log(response);
         var files = response.result.files;
         sheetSelect.empty();
         sheetSelect.append($('<option selected disabled>Choose Google Sheet, or xlsx to autoconvert</option>'));
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
-	    console.log(file);
-
-	    // load a default sheet. Might conflict with the auto convert idea?
-	    if (i == 0)
-		sstActiveSheetChange(file.id);
-	
             sheetSelect.append($('<option>', {
                 value: JSON.stringify({ id: file.id, name: file.name, mimeType: file.mimeType }),
                 text: file.name + (file.mimeType == EXCELXLSXMIMETYPE ? " //XL native will be autoconverted" : "")
             }));
-	}
-    });
-}
-
-// using  mapping file to grab sheet values
-var L20 = {
-    version: 'Z1',
-    eventId: 'Y1',
-    roundId: 'D2',
-    routes:  'C2',
-    p1top: 'H3', p1high: 'F5:F', p1attempts: 'G5:G', p1points: 'H5:H',
-    p2top: 'K3', p2high: 'I5:I', p2attempts: 'J5:J', p2points: 'K5:K',
-    p3top: 'N3', p3high: 'L5:L', p3attempts: 'M5:M', p3points: 'N5:N',
-    p4top: 'Q3', p4high: 'O5:O', p4attempts: 'P5:P', p4points: 'Q5:Q',
-    climber: 'A5:A',
-    team:    'B5:B',
-    memberId:'U5:U',
-    tops:    'R5:R',
-    pts:     'T5:T',
-    rank:    'E5:E'
-};
-
-var M1 = {
-    version: 'Z1',
-    eventId: 'F4',
-    roundId: 'E4',
-    routes:  'D4',
-    p1top: 'H3', p1high: 'H6:H', p1attempts: 'I6:I', p1points: 'AD6:AD',
-    p2top: 'J3', p2high: 'J6:J', p2attempts: 'K6:K', p2points: 'AL6:AL',
-    p3top: 'L3', p3high: 'L6:L', p3attempts: 'M6:M', p3points: 'AT6:AT',
-    p4top: 'N3', p4high: 'N6:N', p4attempts: 'O6:O', p4points: 'BB6:BB',
-    climber: 'B6:B',
-    team:    'C6:C',
-    memberId:'E6:E',
-    tops:    'EG6:EG',
-    pts:     'EH6:EH',
-    rank:    'EC6:EC'
-};
-
-var V20D1Q = '1hvppUPuAkgDFtqn3CRmDLtHa-voEipHDdr5Gnx2ssCc';
-var M1D8Q = '1oTsW32jrKYj8PiKC2saUmVyiJQwaw6nPGDCwLTGxFbM';
-
-function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) 
-{
-    var range = [];
-    var map = (sstGetEventRegion()[0] == '8') ? M1 : L20;
-    var query = [];
-    var result = {};
-    var sheet = {};
-    var keys = Object.keys(map);
-
-    for(var k = 0; k < keys.length; k++) {
-	query[k] = categoryName + "!" + map[keys[k]];
-    }
-    
-    var options = {
-	spreadsheetId: targetGoogleSheetId,
-        ranges: query,
-	majorDimension: 'COLUMNS'
-    };
-
-    gapiBatchGet(options, function(response) {
-	var res = response.result.valueRanges;
-
-	for(var q = 0; q < res.length; q++) {
-	    var range = res[q].range;
-	    var values = res[q].values;
-	    if (values[0].length == 1)
-		sheet[keys[q]] = values[0][0];
-	    else
-		sheet[keys[q]] = values[0];
-	}
-
-	if (sheet.climber.length != sheet.memberId.length) {
-	    alert("error:" + categoryName + ": number of climbers=" + sheet.climbers.length + " number of members=" + sheet.memberId.length);
-	    return;
-	}
-	
-        var categoryVM = new CategoryVM();
-
-        categoryVM.Name = categoryName;
-        if (sheet.routes) {
-	    categoryVM.MaxProblems = parseInt(sheet.routes);
-        } else {
-	    alert("The Number of problems was not found for this " + categoryName);
-	    return;
         }
-
-	for (var j = 1; j <= categoryVM.MaxProblems; j++) {
-	    var topHold = 'p'+j+'top';
-	    if (sheet[topHold]) {
-                categoryVM.TopHolds.push(parseInt(sheet[topHold]));
-            } else {
-		alert("The top hold numbers were not found for this " + categoryName);
-		return;
-            }
-	}
-	categoryVM.MemberIdOffset = 0;
-
-	for(var i = 0; i < sheet.memberId.length; i++) {
-            if (i >= categoryVM.Climbers.length - 1) 
-		categoryVM.Climbers.push(new ClimberVM);
-
-            var climber = categoryVM.Climbers[i];
-            climber.Name = sheet.climber[i];
-            climber.MemberId = sheet.memberId[i];
-            climber.Rank = (i < sheet.rank.length) ? sheet.rank[i] : '';
-            climber.TeamName = (i < sheet.team.length) ? sheet.team[i] : '';
-            for (var j = 0; j < categoryVM.MaxProblems; j++) {
-		if (j > climber.Problems.length - 1) 
-		    climber.Problems.push(new ProbVM);
-
-		var j1 = j+1;
-		var high = 'p' + j1 + 'high';
-		climber.Problems[j].HighHold = (i < sheet[high].length) ? sheet[high][i] : '';
-		var attempts = 'p' +j1 + 'attempts';		
-		climber.Problems[j].Attempts = (i < sheet[attempts].length) ? sheet[attempts][i] : '';
-            }
-	}
-	categoryVM.RoundName = sheet.roundId;
-
-	console.log(categoryVM);
-	/*
-	for(var n = 0; n < categoryVM.Climbers.length; n++) {
-            var climber = categoryVM.Climbers[n];
-	    console.log(climber);
-	    for(var p = 0; p < categoryVM.MaxProblems; p++)
-		console.log(climber.Problems[p]);
-	}
-	*/
-        runWhenSuccess(categoryVM);
     });
 }
+
+sstLoadSheetSelect();
 

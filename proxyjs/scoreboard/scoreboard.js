@@ -1,7 +1,8 @@
 "use strict";
 console.log("scoreboard loaded");
 
-var DEFAULTSHEETID = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY'; 
+//var DEFAULTSHEETID = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY';
+var DEFAULTSHEETID = '1ObDxmWDL4dfZzlnnC-2qkSQtmMO5ssts6SeuYIe5Q-4';
 var sstActiveSheetId = DEFAULTSHEETID; 
 
 function scoreboardInit()
@@ -15,7 +16,8 @@ function scoreboardInit()
 
     loadStyle("/scoreboard/sst.css");
 
-    loadScript("/scoreboard/simplescoring.js");
+    loadScript("/scoreboard/simplescoring.js"); // maps->excel cells version
+    //loadScript("/scoreboard/simplescoringHardWired.js"); // original version    
     loadScript("/scoreboard/senddata2usac.js");
 
     divBouldering
@@ -23,9 +25,12 @@ function scoreboardInit()
 	.load("/scoreboard/partialHTMLforSimpleScoring.html"));
 
     var contentArea = $('div.contentarea.content-container');
-    contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe style="width: 100%; height: 700px;"></iframe></div>' +
+    contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe id="iframeSheets" style="width: 100%; height: 700px;"></iframe></div>' +
         '<div id="sst-eventid-div">Event Id: <span id="sst-eventid-span"></span></div ><center>'));
 //	changeIframeSrc(DEFAULTSHEETID);
+
+//    $('#iframeSheets').on('load', alert('load'));
+//    $('#iframeSheets').on('click', alert('click'));
 
     setTimeout(waitForBoulderingTab, 1000);
 
@@ -48,6 +53,7 @@ function waitForBoulderingTab() {
         setTimeout(waitForBoulderingTab, 1000);
         return;
     }
+sstLoadSheetSelect();
 
 	ScoringView(0);
 
@@ -90,24 +96,7 @@ function loadStyle(cssfile)
 {
     $("head").append($('<style></style>').load(cssfile));
 }
-/* 
 
-function loadScript(jsfile)
-{
-    console.log(jsfile);
-
-    $.getScript(jsfile,
-		function( data, textStatus, jqxhr ) {
-		    if (jqxhr.status == 200) {
-			console.log( "%s loaded", jsfile );
-			return 1;
-		    } else {
-			console.log( "%s failed to load", jsfile );
-			return -1;
-		    }
-		});
-}
-*/  // replaced $.getScript with this bit by Alex Sorokoletov from http://stackoverflow.com/questions/690781/debugging-scripts-added-via-jquery-getscript-function
 var loadScript = function (path) {
     var result = $.Deferred(),
         script = document.createElement("script");
