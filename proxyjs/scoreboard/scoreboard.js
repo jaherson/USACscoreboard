@@ -27,9 +27,9 @@ function scoreboardInit()
         '<div id="sst-eventid-div">Event Id: <span id="sst-eventid-span"></span></div ><center>'));
 //	changeIframeSrc(DEFAULTSHEETID);
 
-	setTimeout(waitForBoulderingTab, 1000);
+    setTimeout(waitForBoulderingTab, 1000);
 
-	return;
+    return;
 }
 
 function waitForBoulderingTab() {
@@ -51,7 +51,6 @@ function waitForBoulderingTab() {
 
 	ScoringView(0);
 
-   sstSheetSelectInit();
     divSST.show(); //weird ScoringView doesn't work on this?
 }
 
