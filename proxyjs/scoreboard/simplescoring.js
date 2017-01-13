@@ -704,24 +704,66 @@ function sstSearchDestroyACById(fileId) {
     });
 }
 
-// gapi test functions
-function gapidriveFilesListTest()
+function sstSheetSelectInit()
 {
-    options = {
-	fileId: '0B8VRfGThSdoAbmJVUzh0OTBwYXc'
-    };
-	
-    gapidriveFilesList(options, testListCB);
+    var sheetSelect = $("#SheetSelectList");
+    var folderId = '0B8VRfGThSdoAVWhVRDNiM2otNVk'; //div1
+//                    0B8VRfGThSdoAWUZMNkhzQ3JuMDQ'; div8
+    var queryFolder = "'"+ folderId + "' " + "in parents";
+    var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
+    var query = '"' + queryMimeType + ' and ' +  queryFolder + '"';
+    var options = {};
+    options.q = queryFolder; 
+
+    gapidriveFilesList(options, function(response) {
+	console.log(response);
+	var files = response.result.files;
+	for (var i = 0; i < files.length; i++) {
+	    var file = files[i];
+	    console.log('%s (%s)', file.name, file.id);
+	    sheetSelect.append($('<option>', { 
+		value: file.id,
+		text : file.name
+	    }));
+	}
+    });
 }
 
-function testListCB(response)
+
+function gapiTestFilesList()
 {
-    console.log('Files:');
-    console.log(response);
-    var files = response.result.files;
-    for (var i = 0; i < files.length; i++) {
-	var file = files[i];
-	console.log('%s (%s)', file.name, file.id);
-    }
+    var folderId = '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ';
+    var queryFolder = "'"+ folderId + "' " + "in parents";
+    var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
+    var query = queryMimeType + ' and ' +  queryFolder;
+    // q: "mimeType = 'application/vnd.google-apps.spreadsheet' and '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' in parents";
+    console.log(query);
+    var options = {};
+    options.q = query; 
+
+    gapidriveFilesList(options, function(response) {
+	console.log('Files:');
+	console.log(response);
+	var files = response.result.files;
+	for (var i = 0; i < files.length; i++) {
+	    var file = files[i];
+	    console.log('%s (%s)', file.name, file.id);
+	}
+    });
 }
 
+
+function fakePush(cvm) 
+{
+    console.log("push");
+    console.log(cvm);    
+}
+
+
+function gapiTestBatchGet()
+{
+    var sheetId = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY'; 
+    var category = 'MYA';
+
+    sstPullSheetData(sheetId, category, fakePush);    
+}

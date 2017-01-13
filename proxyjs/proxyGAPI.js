@@ -121,24 +121,16 @@ function respond404(res)
     res.end();
 }
 
-var t0;
 function gapiFileList(options, req, res)
 {
-    t0 = clock();
     options.auth = oauth2Client;
-    if (options.fileId) {
-	var query = "'"+ options.fileId + "' " + "in parents";
-	options.q = query;         //"'0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' in parents"
-    }
-    console.log(options);
 
     gdrive.files.list(options, function(err, response) {
 	if (err) {
 	    console.log('gapiFileList error: ' + err);
 	    return;
 	} else {
-	    listCB(response);
-	    console.log('gapi.FileList: %d files in %dms:', response.files.length, clock()-t0);
+	    console.log('gapi.FileList: %d files:', response.files.length);
 	    res.writeHead(200,
 			  {
 			      'Content-Type': 'application/json'
@@ -149,54 +141,47 @@ function gapiFileList(options, req, res)
     });
 }
 
-function listCB(response)
+function gapiBatchGet(options, req, res)
 {
-    console.log('Files:');
-    var files = response.files;
-    for (var i = 0; i < files.length; i++) {
-	var file = files[i];
-	console.log('%s (%s)', file.name, file.id);
-    }
-}
+    options.auth = oauth2Client;
 
+    sheets.spreadsheets.values.batchGet(options, function(err, response) {
+	if (err) {
+	    console.log('GAPI error: ' + err);
+	    return;
+	}
+	var ranges = response.valueRanges;
+	if (ranges.length == 0) {
+	    console.log('No data found.');
+	    respond404(res);
+	} else {
+	    var json = JSON.stringify(response);
+	    console.log('gapi.batchGet(%d):', json.length);
+	    res.writeHead(200,
+			  {
+			      'Content-Type': 'application/json'
+			  });
+	    res.write(json);
+	    res.end();
+	}
+    });
+}
 
 function gapiGet(req, res)
 {
     console.log(req.url);
-    t0 = clock();
     var argv = req.url.split('?');
     var url = argv[0];
     var options = JSON.parse(decodeURIComponent(argv[1]));
-    console.log(options);
 
     if (req.url.indexOf('/gapi/filesList') == 0) {
 	gapiFileList(options, req, res);
-	return;
+    } else if (req.url.indexOf('/gapi/batchGet') == 0) {
+	gapiBatchGet(options, req, res);
     } else {
-	options.auth = oauth2Client;
-	sheets.spreadsheets.values.batchGet(options, function(err, response) {
-	    if (err) {
-		console.log('GAPI error: ' + err);
-		return;
-	    }
-	    var t1 = clock(t0);
-	    var ranges = response.valueRanges;
-	    if (ranges.length == 0) {
-		console.log('No data found.');
-		respond404(res);
-	    } else {
-		console.log('gapi.batchGet(%s) in %dms:', options, t1);
-		res.writeHead(200,
-			      {
-				  'Content-Type': 'application/json'
-			      });
-		res.write(JSON.stringify(response));
-		res.end();
-	    }
-	});
+	console.log("GAPI: invalid req %s", req.url);
     }
 }
-
 
 function gapiFileDelete(fileId) {
     gdrive.files.delete({
@@ -227,6 +212,18 @@ function gapiFileCopy(fileId, newname, callback)
 	 }
      });
 }
+
+/*
+function listCB(response)
+{
+    console.log('Files:');
+    var files = response.files;
+    for (var i = 0; i < files.length; i++) {
+	var file = files[i];
+	console.log('%s (%s)', file.name, file.id);
+    }
+}
+*/
 
 module.exports = {
     Init:  function() 
