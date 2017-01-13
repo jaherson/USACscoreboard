@@ -113,11 +113,21 @@ function clock(start) {
 
 function respond404(res)
 {
-    res.writeHead(404,
-		  {
-		      'Content-Type': 'text/plain'
-		  });
+    res.writeHead(404, {'Content-Type': 'text/plain'});
     res.write('404 Not Found\n');
+    res.end();
+}
+
+function respond200(res)
+{
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end();
+}
+
+function respondJSON(res, json)
+{
+    res.writeHead(200, {'Content-Type': 'application/json' });
+    res.write(json);
     res.end();
 }
 
@@ -128,15 +138,37 @@ function gapiFileList(options, req, res)
     gdrive.files.list(options, function(err, response) {
 	if (err) {
 	    console.log('gapiFileList error: ' + err);
-	    return;
+	    respond404(res);
 	} else {
 	    console.log('gapi.FileList: %d files:', response.files.length);
-	    res.writeHead(200,
-			  {
-			      'Content-Type': 'application/json'
-			  });
-	    res.write(JSON.stringify(response));
-	    res.end();
+	    respondJSON(res, JSON.stringify(response));	    
+	}
+    });
+}
+
+function gapiFileCopy(options, req, res)
+{
+    options.auth = oauth2Client;
+
+    gdrive.files.copy(options, function(err, response) {
+	if (err) {
+	    console.log('gapiFileCopy: ' + err);
+	    respond404(res);
+	} else {
+	    respondJSON(res, JSON.stringify(response));	    
+	}
+    });
+}
+
+function gapiFileDelete(options, req, res)
+{
+    options.auth = oauth2Client;
+    gdrive.files.delete(options, function(err, response) {
+	if (err) {
+	    console.log('gapiFileDelete: ' + err);
+	    respond404(res);
+	} else {
+	    respond200(res);
 	}
     });
 }
@@ -176,54 +208,16 @@ function gapiGet(req, res)
 
     if (req.url.indexOf('/gapi/filesList') == 0) {
 	gapiFileList(options, req, res);
+    } else if (req.url.indexOf('/gapi/filesCopy') == 0) {
+	gapiFileCopy(options, req, res);
+    } else if (req.url.indexOf('/gapi/filesDelete') == 0) {
+	gapiFileDelete(options, req, res);
     } else if (req.url.indexOf('/gapi/batchGet') == 0) {
 	gapiBatchGet(options, req, res);
     } else {
 	console.log("GAPI: invalid req %s", req.url);
     }
 }
-
-function gapiFileDelete(fileId) {
-    gdrive.files.delete({
-	auth: oauth2Client,
-	fileId: fileId
-    }, function(err, response) {
-	if (err) {
-            console.log('Delete error' + err);
-	} else {
-	    console.log(fileId + ' deleted');
-	}
-    });
-}
-
-function gapiFileCopy(fileId, newname, callback)
-{
-    gdrive.files.copy({
-	auth: oauth2Client,
-        fileId: fileId,
-	resource: {
-	    name: newname
-	},
-     }, function(err, response) {
-	 if (err) {
-	     console.log('gapiFileCopy error: ' + err);
-	 } else {
-	     callback(response);	     
-	 }
-     });
-}
-
-/*
-function listCB(response)
-{
-    console.log('Files:');
-    var files = response.files;
-    for (var i = 0; i < files.length; i++) {
-	var file = files[i];
-	console.log('%s (%s)', file.name, file.id);
-    }
-}
-*/
 
 module.exports = {
     Init:  function() 
@@ -235,5 +229,3 @@ module.exports = {
 	gapiGet(req, res);
     }
 };
-
-

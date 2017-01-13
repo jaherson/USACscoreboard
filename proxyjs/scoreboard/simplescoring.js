@@ -638,22 +638,24 @@ function gapiProxy(url, responseCB) {
         });
 }
 
-
 //
 // Autoconvert
 //
-
+/*
 function sstCopyXLS2GoogleSheet(originFileId, newTitle, runAfterCopy) {
     var request = gapidriveFilesCopy({
-        'fileId': originFileId,
-        'mimeType': 'application/vnd.google-apps.spreadsheet',
-        'name': newTitle
+        fileId: originFileId,
+	resource {
+            name: newTitle
+            mimeType: 'application/vnd.google-apps.spreadsheet',
+	},
     },
         function (resp) {
         console.log('Copy ID: ' + resp.id);
         runAfterCopy(resp);
     });
 }
+*/
 
 function sstTryAutoConvert(callback, xlsId, xlsName) {   // use 2 globals (if parameters are null) and a nullable callback parameter
     if (!xlsId && sstActiveSheetAutoConvertId === "") {
@@ -704,7 +706,7 @@ function sstSearchDestroyACById(fileId) {
     });
 }
 
-function sstSheetSelectInit()
+function sstLoadSheetSelect()
 {
     var sheetSelect = $("#SheetSelectList");
     var folderId = '0B8VRfGThSdoAVWhVRDNiM2otNVk'; //div1
@@ -720,7 +722,11 @@ function sstSheetSelectInit()
 	var files = response.result.files;
 	for (var i = 0; i < files.length; i++) {
 	    var file = files[i];
-	    console.log('%s (%s)', file.name, file.id);
+	    //console.log('%s (%s)', file.name, file.id);
+	    /*
+	    if (i == 0)
+		changeIframeSrc(file.id);
+*/
 	    sheetSelect.append($('<option>', { 
 		value: file.id,
 		text : file.name
@@ -729,41 +735,5 @@ function sstSheetSelectInit()
     });
 }
 
+sstLoadSheetSelect();
 
-function gapiTestFilesList()
-{
-    var folderId = '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ';
-    var queryFolder = "'"+ folderId + "' " + "in parents";
-    var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
-    var query = queryMimeType + ' and ' +  queryFolder;
-    // q: "mimeType = 'application/vnd.google-apps.spreadsheet' and '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' in parents";
-    console.log(query);
-    var options = {};
-    options.q = query; 
-
-    gapidriveFilesList(options, function(response) {
-	console.log('Files:');
-	console.log(response);
-	var files = response.result.files;
-	for (var i = 0; i < files.length; i++) {
-	    var file = files[i];
-	    console.log('%s (%s)', file.name, file.id);
-	}
-    });
-}
-
-
-function fakePush(cvm) 
-{
-    console.log("push");
-    console.log(cvm);    
-}
-
-
-function gapiTestBatchGet()
-{
-    var sheetId = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY'; 
-    var category = 'MYA';
-
-    sstPullSheetData(sheetId, category, fakePush);    
-}
