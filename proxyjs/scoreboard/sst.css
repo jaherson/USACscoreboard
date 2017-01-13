@@ -1,7 +1,7 @@
 ﻿#sst-partialHTML {
     position: relative;    
 }
-#xsst-showpicker-button {
+#sst-showpicker-button {
     height: 50px;
     padding: 10px;
 }
@@ -32,11 +32,13 @@ table.sst-inside-fieldset {
 }
 #sst-controls div.sst-active-sheet-control-div table td.second {
     width: auto;
+}
+#sst-controls div.sst-active-sheet-control-div table td.second select {
     font-size: 14px;
+    height: 30px;
 }
 #sst-controls div.sst-active-sheet-control-div table td.third {
-    width: 23%;
-    min-width: 400px;
+    font-size: 14px;
 }    
 
 #sst-push-to-usac {
@@ -70,7 +72,8 @@ div.sst-compare-button-group-div button.sst-blue-button {
     height: 60px;
 }
 div.sst-active-sheet-control-div button.sst-blue-button {
-    width: 340px;
+    display: none;
+    width: 64px;
     height: 40px;
 }
 

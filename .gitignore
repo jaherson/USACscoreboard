@@ -10,3 +10,5 @@
 /.vs/USACscoreboard.TStudiosFork/v14
 /.vs/config/applicationhost.config
 /typings
+/proxyjs/token.json
+/proxyjs/client_secret.json
