@@ -68,6 +68,11 @@ var sstRid2RoundAbbrev = { // TODO - these values were good in the TEST Regional
 };
 
 
+var GOOGLESHEETSMIMETYPE = 'application/vnd.google-apps.spreadsheet';
+var EXCELXLSXMIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+
+
 //
 // GLOBALS
 //
@@ -326,8 +331,25 @@ function sstInitSheetWithNamesId(targetGoogleSheetId, cvm, runWhenSuccess) {
 //
 // sst UI
 //
+function sstCurrentSheetChanged(value) {
+    var fi = JSON.parse(value);
+    var fileId = fi.id;
+    if (fi.mimeType === GOOGLESHEETSMIMETYPE) {
+        sstActiveSheetAutoConvertId = "";
+        sstActiveSheetAutoConvertName = "";
+        sstActiveSheetChange(fileId);
+        $("#divSheets").removeClass("sst-greyed-autoconverted-and-will-be-overwritten");
+    } else if (fi.mimeType === EXCELXLSXMIMETYPE) {         // an XLSX fileId  0B8VRfGThSdoAQzVXV3k5UFN1VG8
+        // convert and then point to the converted file
+        sstActiveSheetAutoConvertId = fileId;
+        sstActiveSheetAutoConvertName = fi.name;
+        sstTryAutoConvert(true);
+        $("#divSheets").addClass("sst-greyed-autoconverted-and-will-be-overwritten");
+    } 
+}
+
 function sstPushtoUSACClicked() {
-    sstPushtoUSAC();
+    sstTryAutoConvert(true, sstPushtoUSAC);
 }
 function sstPushtoUSAC() {
     var selectedCategories = sstGetSelectedCategories();
@@ -374,12 +396,9 @@ function sstCompareClicked() {
 
     if (sstDoubleCheckExcelXLSId) {
         // convert and then compare
-        sstTryAutoConvert(sstCompare, sstDoubleCheckExcelXLSId, sstDoubleCheckExcelXLSName);
+        sstTryAutoConvert(false, sstCompare, sstDoubleCheckExcelXLSId, sstDoubleCheckExcelXLSName);
         return;
     }
-
-    
-    sstCompare(sstDoubleCheckSheetId);
 }
 
 function sstCompare(dblCheckFileId) {
@@ -641,23 +660,24 @@ function gapiProxy(url, responseCB) {
 //
 // Autoconvert
 //
-/*
-function sstCopyXLS2GoogleSheet(originFileId, newTitle, runAfterCopy) {
-    var request = gapidriveFilesCopy({
-        fileId: originFileId,
-	resource {
-            name: newTitle
-            mimeType: 'application/vnd.google-apps.spreadsheet',
-	},
-    },
-        function (resp) {
-        console.log('Copy ID: ' + resp.id);
-        runAfterCopy(resp);
-    });
-}
-*/
 
-function sstTryAutoConvert(callback, xlsId, xlsName) {   // use 2 globals (if parameters are null) and a nullable callback parameter
+function sstCopyXLS2GoogleSheet(originFileId, newTitle, runAfterCopy) {
+    var request = gapidriveFilesCopy(
+        {
+            fileId: originFileId,
+            resource: {
+                name: newTitle,
+                mimeType: 'application/vnd.google-apps.spreadsheet',
+            }
+        },
+        function(resp) {
+            console.log('Copy ID: ' + resp.id);
+            runAfterCopy(resp);
+        }
+    );
+}
+
+function sstTryAutoConvert(isShouldUpdateActiveSheetIfAC, callback, xlsId, xlsName) {   // use 2 globals (if parameters are null) and a nullable callback parameter
     if (!xlsId && sstActiveSheetAutoConvertId === "") {
         if (callback)
             callback(false);
@@ -665,21 +685,24 @@ function sstTryAutoConvert(callback, xlsId, xlsName) {   // use 2 globals (if pa
     }
 
     xlsName = (xlsName) ? xlsName : sstActiveSheetAutoConvertName;
-    sstSearchDestroyACByFilename(xlsName + "_autoconverted"); // Hope this never deletes the new copy....
+    sstSearchDestroyACByFilename(sstDeleteMeFilename(xlsName)); // Hope this never deletes the new copy....
 
     $("#sst-awaiting-autoconvert").show();
     sstCopyXLS2GoogleSheet(
         (xlsId) ? xlsId : sstActiveSheetAutoConvertId,
-        xlsName + "_autoconverted",
+        sstDeleteMeFilename(xlsName),
         function (response) {
             $("#sst-awaiting-autoconvert").hide();
-            if (!xlsId)   // only update the activesheet if we were trying to convert the old activesheet
+            if (isShouldUpdateActiveSheetIfAC)   // only update the activesheet if we were trying to convert the old activesheet 
                 sstActiveSheetChange(response.result.id);
             if (callback)
                 callback(response.result.id);
         }
     );
 
+}
+function sstDeleteMeFilename(fn) {
+    return ("DeleteMeLater " + fn);
 }
 
 function sstSearchDestroyACByFilename(filename) {
@@ -689,7 +712,7 @@ function sstSearchDestroyACByFilename(filename) {
         'fields': "nextPageToken, files(id, name, trashed)"
     },
         function (resp) {
-        var files = resp.files;
+        var files = resp.result.files;
         if (files && files.length > 0) {
             for (var i = 0; i < files.length; i++) {
                 sstSearchDestroyACById(files[i].id);
@@ -709,29 +732,31 @@ function sstSearchDestroyACById(fileId) {
 function sstLoadSheetSelect()
 {
     var sheetSelect = $("#SheetSelectList");
-    var folderId = '0B8VRfGThSdoAVWhVRDNiM2otNVk'; //div1
-//                    0B8VRfGThSdoAWUZMNkhzQ3JuMDQ'; div8
+    var DIVISION2FOLDERID = {
+        "1": '0B8VRfGThSdoAVWhVRDNiM2otNVk', //div1
+        "2": 'needsomethinghere', //div2  TODO
+        "8": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' //div8
+    }
+    var folderId = DIVISION2FOLDERID[sstGetEventRegion()[0]];
+
     var queryFolder = "'"+ folderId + "' " + "in parents";
     var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
-    var query = '"' + queryMimeType + ' and ' +  queryFolder + '"';
+    var query = '"' + queryMimeType + ' and ' +  queryFolder + '"';     // if this is ever used, need to keep Excel mimetype too...
     var options = {};
     options.q = queryFolder; 
 
-    gapidriveFilesList(options, function(response) {
-	console.log(response);
-	var files = response.result.files;
-	for (var i = 0; i < files.length; i++) {
-	    var file = files[i];
-	    //console.log('%s (%s)', file.name, file.id);
-	    /*
-	    if (i == 0)
-		changeIframeSrc(file.id);
-*/
-	    sheetSelect.append($('<option>', { 
-		value: file.id,
-		text : file.name
-	    }));
-	}
+    gapidriveFilesList(options, function (response) {
+        console.log(response);
+        var files = response.result.files;
+        sheetSelect.empty();
+        sheetSelect.append($('<option selected disabled>Choose Google Sheet, or xlsx to autoconvert</option>'));
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            sheetSelect.append($('<option>', {
+                value: JSON.stringify({ id: file.id, name: file.name, mimeType: file.mimeType }),
+                text: file.name + (file.mimeType == EXCELXLSXMIMETYPE ? " //XL native will be autoconverted" : "")
+            }));
+        }
     });
 }
 
