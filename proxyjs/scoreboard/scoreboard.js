@@ -16,8 +16,8 @@ function scoreboardInit()
 
     loadStyle("/scoreboard/sst.css");
 
-    loadScript("/scoreboard/simplescoring.js"); // maps->excel cells version
-    //loadScript("/scoreboard/simplescoringHardWired.js"); // original version    
+    //loadScript("/scoreboard/simplescoring.js"); // maps->excel cells version
+    loadScript("/scoreboard/simplescoringHardWired.js"); // original version    
     loadScript("/scoreboard/senddata2usac.js");
 
     divBouldering

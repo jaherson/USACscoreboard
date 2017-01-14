@@ -87,10 +87,9 @@ function sstActiveSheetChange(newId) {
 }
 var sstActiveSheetAutoConvertId = "";
 var sstActiveSheetAutoConvertName = "";
-var sstDoubleCheckSheetId = "";
-var sstDoubleCheckExcelXLSId = "";
-var sstDoubleCheckExcelXLSAutoConvertId = "";
-var sstDoubleCheckExcelXLSAutoConvertName = "";
+var sstDblChkSheetId = "";
+var sstDblChkExcelXLSAutoConvertId = "";
+var sstDblChkExcelXLSAutoConvertName = "";
 
 var sstCheckRankFixRoundAndResultsShownAutomatically = false;
 
@@ -347,6 +346,20 @@ function sstCurrentSheetChanged(value) {
         $("#divSheets").addClass("sst-greyed-autoconverted-and-will-be-overwritten");
     } 
 }
+function sstDblChkSheetChanged(value) {
+    var fi = JSON.parse(value);
+    var fileId = fi.id;
+    if (fi.mimeType === GOOGLESHEETSMIMETYPE) {
+        sstDblChkSheetId = fileId;
+        sstDblChkExcelXLSAutoConvertId = "";
+        sstDblChkExcelXLSAutoConvertName = "";
+    } else if (fi.mimeType === EXCELXLSXMIMETYPE) {         // an XLSX fileId  0B8VRfGThSdoAQzVXV3k5UFN1VG8
+        // convert and then point to the converted file
+        sstDblChkExcelXLSAutoConvertId = fi.id;
+        sstDblChkExcelXLSAutoConvertName = fi.name;
+    }
+    sstCompareClicked(true);
+}
 
 function sstPushtoUSACClicked() {
     sstTryAutoConvert(true, sstPushtoUSAC);
@@ -386,18 +399,29 @@ function sstPushDatatoUSACCallback(cvm) {
     );
 }
 
-function sstCompareClicked() {
+function sstCompareClicked(notbyUI) {
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
-    if (!sstDoubleCheckSheetId && !sstDoubleCheckExcelXLSId)
-        alert("You must setup the second workbook to double check first");
-
-    sstPrintResetShow();
-
-    if (sstDoubleCheckExcelXLSId) {
-        // convert and then compare
-        sstTryAutoConvert(false, sstCompare, sstDoubleCheckExcelXLSId, sstDoubleCheckExcelXLSName);
+    if (!notbyUI) {
+        $('#dblChkSheetSelectList').prop('selectedIndex', 0);
+        $("#sst-controls div.sst-compare-button-group-div tr.second").show();
         return;
+    }
+    if (!sstDblChkSheetId && !sstDblChkExcelXLSAutoConvertId) {
+        alert("Sheet to compare is not selected");
+        return;
+    }
+    $("#sst-controls div.sst-compare-button-group-div tr.second").hide();
+    sstPrintResetShow();
+    
+    if (sstDblChkExcelXLSAutoConvertId) {
+        // convert and then compare
+        sstTryAutoConvert(false, sstCompare, sstDblChkExcelXLSAutoConvertId, sstDblChkExcelXLSAutoConvertName);
+        return;
+    } else if (sstDblChkSheetId) {
+        sstCompare(sstDblChkSheetId);
+    } else {
+        alert("Select a sheet to compare in the dropdown list below the Compare button");
     }
 }
 
@@ -732,16 +756,18 @@ function sstSearchDestroyACById(fileId) {
 function sstLoadSheetSelect()
 {
     var sheetSelect = $("#SheetSelectList");
+    var dblChkSheetSelect = $("#dblChkSheetSelectList");
     var DIVISION2FOLDERID = {
         "1": '0B8VRfGThSdoAVWhVRDNiM2otNVk', //div1
-        "2": 'needsomethinghere', //div2  TODO
+        //"2": '0B8VRfGThSdoAa3hURXRsTGpzMjA', //div2
+        "2": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ', //div2 debug,
         "8": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' //div8
     }
     var folderId = DIVISION2FOLDERID[sstGetEventRegion()[0]];
 
-    var queryFolder = "'"+ folderId + "' " + "in parents";
-    var queryMimeType  = "mimeType = 'application/vnd.google-apps.spreadsheet'";
-    var query = '"' + queryMimeType + ' and ' +  queryFolder + '"';     // if this is ever used, need to keep Excel mimetype too...
+    var queryFolder = "'" + folderId + "' " + "in parents";
+    var queryMimeType = "mimeType = 'application/vnd.google-apps.spreadsheet'";
+    var query = '"' + queryMimeType + ' and ' + queryFolder + '"';     // if this is ever used, need to keep Excel mimetype too...
     var options = {};
     options.q = queryFolder; 
 
@@ -749,16 +775,25 @@ function sstLoadSheetSelect()
         console.log(response);
         var files = response.result.files;
         sheetSelect.empty();
+        dblChkSheetSelect.empty();
         sheetSelect.append($('<option selected disabled>Choose Google Sheet, or xlsx to autoconvert</option>'));
+        dblChkSheetSelect.append($('<option selected disabled>Choose a sheet to compare...</option>'));
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
-            sheetSelect.append($('<option>', {
+            console.log(file);
+
+            // load a default sheet. Might conflict with the auto convert idea?
+            if (i == 0 && file.mimeType == GOOGLESHEETSMIMETYPE)
+                sstActiveSheetChange(file.id);
+
+            $fi = $('<option>', {
                 value: JSON.stringify({ id: file.id, name: file.name, mimeType: file.mimeType }),
                 text: file.name + (file.mimeType == EXCELXLSXMIMETYPE ? " //XL native will be autoconverted" : "")
-            }));
+            });
+            sheetSelect.append($fi);
+            dblChkSheetSelect.append($fi.clone(true));
         }
     });
 }
 
-sstLoadSheetSelect();
 
