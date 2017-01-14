@@ -16,6 +16,13 @@ table.sst-inside-fieldset {
 #sst-controls div.sst-compare-button-group-div {
     margin-right: 10px;
 }
+#sst-controls div.sst-compare-button-group-div tr.second {
+    display: none;
+}
+#sst-controls div.sst-compare-button-group-div tr.second select {
+    height: 30px;
+    width: 257px;
+}
 #sst-controls div.sst-active-sheet-control-div table {
     background-color: #CACACA;
     height: 60px;
