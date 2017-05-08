@@ -149,7 +149,7 @@ function sstFindClimbers(cvm) {
     var catid = sstCategoryName2CatId[cvm.Name];
     var g = sstCategoryName2Gender[cvm.Name];
 
-    var $divC = $("#divBouldering div.competitor-wrapper[data-categoryid='" + catid + "'][data-gender='" + g + "']");
+    var $divC = $(DIVDISCIPLINE + " div.competitor-wrapper[data-categoryid='" + catid + "'][data-gender='" + g + "']");
     var $divCH = $divC.find(".competitor-header .rounds-controls a.current");
     if ($divCH.length)
         cvm.RoundName = $divCH[0].textContent;

@@ -4,13 +4,14 @@ console.log("scoreboard loaded");
 //var DEFAULTSHEETID = '18qPsgedpcgEZjwNhp9EVqXLvSergBGrnrf8T6m9umEY';
 var DEFAULTSHEETID = '1ObDxmWDL4dfZzlnnC-2qkSQtmMO5ssts6SeuYIe5Q-4';
 var sstActiveSheetId = DEFAULTSHEETID; 
+var DIVDISCIPLINE = "#divSport";
 
 function scoreboardInit()
 {
-    var divBouldering = $("#divBouldering");
+    var divBouldering = $(DIVDISCIPLINE);
 
     if (divBouldering.length == 0) {
-        console.log("can't locate divBouldering");
+        console.log("can't locate divSport");
         return;
     }
 
@@ -38,7 +39,7 @@ function scoreboardInit()
 }
 
 function waitForBoulderingTab() {
-    var divBouldering = $("#divBouldering");
+    var divBouldering = $(DIVDISCIPLINE);
     var divSheets = $("#divSheets");
     var divSST = $("#sst-partialHTML");
 
@@ -71,7 +72,7 @@ function ScoringView(id) {
     console.log(id);
     switch(id) {
     case 1:
-	$("#divBouldering").show();
+    $(DIVDISCIPLINE).show();  
 	$('#pagetitle').show();
 	$('#divIntro').show();
 	$('div.footer-wrapper').show();
@@ -80,7 +81,7 @@ function ScoringView(id) {
 	$("#divSheets").hide();
 	break;
     case 0:
-	$("#divBouldering").hide();
+    $(DIVDISCIPLINE).hide();
 	$('#pagetitle').hide();
 	$('#divIntro').hide();
 	$('div.footer-wrapper').hide();

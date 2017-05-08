@@ -164,7 +164,7 @@ function sstFindClimbers(cvm) {
     var catid = sstCategoryName2CatId[cvm.Name];
     var g = sstCategoryName2Gender[cvm.Name];
 
-    var $divC = $("#divBouldering div.competitor-wrapper[data-categoryid='" + catid + "'][data-gender='" + g + "']");
+    var $divC = $(DIVDISCIPLINE + " div.competitor-wrapper[data-categoryid='" + catid + "'][data-gender='" + g + "']");
     var $divCH = $divC.find(".competitor-header .rounds-controls a.current");
     if ($divCH.length)
         cvm.RoundName = $divCH[0].textContent;
@@ -264,7 +264,7 @@ function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
 
                     for (var j = 0; j < categoryVM.MaxProblems; j++) {
 			climber.Problems.push(new ProbVM);
-			climber.Problems[j].HighHold = sstBlankNaN(parseInt(row3[PROBLEMOFFSETS[j].Highhold]));
+			climber.Problems[j].HighHold = sstBlankNaN(parseFloat(row3[PROBLEMOFFSETS[j].Highhold]));
 			climber.Problems[j].Attempts = sstBlankNaN(parseInt(row3[PROBLEMOFFSETS[j].Attempts]));
                     }
 		}

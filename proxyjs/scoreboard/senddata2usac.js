@@ -19,13 +19,19 @@ function sstipjUSACSaveClimbersTable(eid, did, rid, catid, g, cvm) {
 
 function sstGetScoresOf1Prob(problemNumber, climbersVM) {
     var s = "";
-
+    // target for Sport   "26319564^2^true^false^3~"
     for (r = 0; r < climbersVM.length; r++) {
         if (problemNumber < 0 || climbersVM[r].Problems.length < problemNumber || climbersVM[r].MemberId == "")
             continue;
         else {
             s += climbersVM[r].MemberId;
-            s += ("^" + climbersVM[r].Problems[problemNumber - 1].HighHold);
+            var x = parseFloat(climbersVM[r].Problems[problemNumber - 1].HighHold);
+            var mu = x - Math.floor(x);
+            var usablesurface = (mu >= 0.5);
+            var movement = (!usablesurface && mu >= 0.3);
+            s += ("^" + Math.floor(x));
+            s += ("^" + movement);
+            s += ("^" + usablesurface);
             s += ("^" + climbersVM[r].Problems[problemNumber - 1].Attempts);
         }
         s += "~";
