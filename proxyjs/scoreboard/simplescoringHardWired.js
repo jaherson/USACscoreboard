@@ -461,7 +461,7 @@ function sstCompareCVM(categoryName, cvmMain, cvm2nd) {
         if (c.MemberId == "")
             return;
 
-        var c2match = cvm2nd.Climbers.find(function (c2) { return c2.MemberId === c.MemberId });
+        var c2match = cvm2nd.Climbers.filter(function (c2) { return c2.MemberId === c.MemberId })[0];
 
         if (c.Problems.length != c2match.Problems.length)
             sstPrint(categoryName + " have a different count of Problems (" + c.Problems.length + "," + c2match.Problems.length + ")");
@@ -472,7 +472,7 @@ function sstCompareCVM(categoryName, cvmMain, cvm2nd) {
             }
 
             if (c.Problems[iP].Attempts != c2match.Problems[iP].Attempts) {
-                sstPrint(categoryName + " " + c.Name + " Problem " + (iP + 1) + " Attempts.   [" + c.Problems[iP].Attempts + " differs from " + c2match.Problems[iP].Attempts + "]");
+                sstPrint(categoryName + " " + c.Name + " Problem " + (iP + 1) + " Clips.   [" + c.Problems[iP].Attempts + " differs from " + c2match.Problems[iP].Attempts + "]");
             }
         }
     });
@@ -600,7 +600,7 @@ function sstCheckRankComp(sheetCVM, cvmOnWebPage) {
         if (c.MemberId == "")
             return;
 
-        var c2match = cvmOnWebPage.Climbers.find(function (c2) { return c2.MemberId === c.MemberId });
+        var c2match = cvmOnWebPage.Climbers.filter(function (c2) { return c2.MemberId === c.MemberId })[0];
 
         if (c.Rank != c2match.Rank) {
             sstPrint(sheetCVM.Name + " " + c.Name + " has different computed ranks.   [" + c.Rank + " vs. " + c2match.Rank + "]");

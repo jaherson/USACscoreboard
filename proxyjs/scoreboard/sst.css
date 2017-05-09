@@ -225,7 +225,7 @@ input.sst-toggle-yes-no:checked + label:after {
 }
 
 .sst-round-category-selection fieldset {
-    width:435px;   
+    /* width:435px;   */
 } 
 .sst-compare-button-group-div fieldset {
     width:285px;   
