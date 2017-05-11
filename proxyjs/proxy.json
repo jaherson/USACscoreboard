@@ -1,5 +1,5 @@
 {
-    "remoteHost" : "www.usaclimbing.org", 
+    "remoteHost" : "usac.activecm.net", 
     "proxyHost" : "localhost:8000",
     "proxyPort" : 8000,
     "images404" : 1,

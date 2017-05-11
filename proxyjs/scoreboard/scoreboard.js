@@ -25,7 +25,7 @@ function scoreboardInit()
 	.before($('<div id="sst-partialHTML" style="display:none;">')
 	.load("/scoreboard/partialHTMLforSimpleScoring.html"));
 
-    var contentArea = $('div.contentarea.content-container');
+    var contentArea = $('#sst-partialHTML');
     contentArea.after($('<center><div id="divSheets" style="margin:5px 10px;display:none;"><iframe id="iframeSheets" style="width: 100%; height: 700px;"></iframe></div>' +
         '<div id="sst-eventid-div">Event Id: <span id="sst-eventid-span"></span></div ><center>'));
 //	changeIframeSrc(DEFAULTSHEETID);

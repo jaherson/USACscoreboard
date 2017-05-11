@@ -4,7 +4,7 @@ var http = require('http');
 var httpProxy = require('http-proxy');
 var agent = new http.Agent({ maxSockets: 100 });
 
-var remoteHost = 'www.usaclimbing.org';
+var remoteHost = 'usac.activecm.net';
 var proxyHost = 'vocr.sri.com';
 var proxyPort = 8000;
 var images404 = 1;
@@ -22,7 +22,7 @@ headselect.func = function (node) {
     console.log("patched: %s", patchScript);
     rs.pipe(ws, {end: false});
     rs.on('end', function(){
-	var patch = '<script type="text/javascript" src="' + patchScript + '"></script>';
+        var patch = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> <script type="text/javascript" src="' + patchScript + '"></script>';
 	ws.end(patch);
     });
 } 

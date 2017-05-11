@@ -104,7 +104,7 @@ var CategoryVM = function() {
     var self = this;
 
     this.Name = "";
-    this.Discipline =""
+    this.Discipline = "";
     this.RoundName = "";
     this.MaxProblems = 0;
     this.TopHolds = [];
@@ -217,7 +217,7 @@ function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
                 alert("There were not the expected 6 ranges returned from this " + categoryName);
 
             var range5 = response.result.valueRanges[5];    // Is this for Speed
-            if (range5.values.length > 0) {
+            if (range5.values && range5.values.length > 0) {
                 categoryVM.Discipline = range5.values[0][0];
             } else {
                 alert("The Discipline Name was not found for " + categoryName);

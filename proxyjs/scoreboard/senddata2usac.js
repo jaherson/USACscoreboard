@@ -2,54 +2,57 @@
 
 function sstipjUSACSaveClimbersTable(eid, did, rid, catid, g, cvm) {
     // TODO - Ignoring ipjUSACBusy   for now....
-    for (var pid = 1; pid < cvm.MaxProblems + 1; pid++) {
-        var scores = sstGetScoresOf1Prob(did, pid, cvm.Climbers);
-        var t = cvm.TopHolds[pid - 1];
-        var torig = 0;  // if torig is equal to t, then t is not recorded on server
-        var rs = ipjUSACGetRoundStatus(did, rid, g, catid);  // BAD assumption - it varies : Assuming 2 is always good RoundStatus. I was looking at my current Test Module's problem "round statuses": ipjUSACGetRoundStatus(did, rid, g, catid);
+    var newgui = (did == sstDIDSPEED ? false : true);   // TODO -- assume newgui for sport
+    var pid = 1;
+    var scores = sstGetScores(did, cvm.Climbers);
+    var t = cvm.TopHolds[pid - 1];
+    var torig = 0;  // if torig is equal to t, then t is not recorded on server
+    var rs = ipjUSACGetRoundStatus(did, rid, g, catid);  // BAD assumption - it varies : Assuming 2 is always good RoundStatus. I was looking at my current Test Module's problem "round statuses": ipjUSACGetRoundStatus(did, rid, g, catid);
 
-        var newgui = (did == sstDIDSPEED ? false : true);
+    try {
+        // ipjDoXmlHttpRequest(ipjUSACUniqueID, document.forms['IronPointForm'].action, "savescoresonsight|"                                 + eid + "|" + did + "|" + g + "|" + catid + "|" + rid + "|" + pid + "|" + t + "|" + torig + "|" + rs + "|" + scores, sstonSaveScoresOnsightResponse, null, true);
+        /* the new way:  newgui is not for Speed (on May 10, 2017) */
+        ipjDoXmlHttpRequest(ipjUSACUniqueID, document.forms['IronPointForm'].action, "savescoresonsight" + (newgui ? "newgui" : "") + "|" + eid + "|" + did + "|" + g + "|" + catid + "|" + rid + "|" + pid + "|" + t + "|" + torig + "|" + rs + "|" + scores, sstonSaveScoresOnsightResponse, null, true);
 
-        try {
-            // ipjDoXmlHttpRequest(ipjUSACUniqueID, document.forms['IronPointForm'].action, "savescoresonsight|"                                 + eid + "|" + did + "|" + g + "|" + catid + "|" + rid + "|" + pid + "|" + t + "|" + torig + "|" + rs + "|" + scores, sstonSaveScoresOnsightResponse, null, true);
-            /* the new way:  newgui is not for Speed (on May 10, 2017) */
-               ipjDoXmlHttpRequest(ipjUSACUniqueID, document.forms['IronPointForm'].action, "savescoresonsight" + (newgui ? "newgui" : "") + "|" + eid + "|" + did + "|" + g + "|" + catid + "|" + rid + "|" + pid + "|" + t + "|" + torig + "|" + rs + "|" + scores, sstonSaveScoresOnsightResponse, null, true);
-
-            sstAddAwaiting(sstGenAwaitingName(rid,catid,g,pid));
-        } catch (e) {
-            alert('An exception occurred pushing scores to USAC.');
-        }
-    }    
+        sstAddAwaiting(sstGenAwaitingName(rid, catid, g, pid));
+    } catch (e) {
+        alert('An exception occurred pushing scores to USAC.');
+    }
 }
 
-function sstGetScoresOf1Prob(did, problemNumber, climbersVM) {
+function sstGetScores(did, climbersVM) {
     var s = "";
-    // target for Sport   "26319564^2^true^false^3~"
+    // old ui target for Sport   "26319564^2^true^false^3~"
+    // newgui target for Sport  "28322556#1^3^false^false^8#2^4^true^false^9#3^5^false^true^10~"
     // target for Speed   "28321635^21^22^23^21.1^22.1^23.1~20597657^11^12^13^11.1^12.1^13.1~"
     for (r = 0; r < climbersVM.length; r++) {
-        if (problemNumber < 0  || climbersVM[r].MemberId == "")
+        if (climbersVM[r].MemberId == "")
             continue;
         else {
             s += climbersVM[r].MemberId;
             switch (did) {
                 case sstDIDSPEED:
-                    for (var j = 0; j < 6; j++)
-                    {
+                    for (var j = 0; j < 6; j++) {
                         s += ("^" + climbersVM[r].RouteTimes[j]);
                     }
                     break;
-                default:
-                    if (climbersVM[r].Problems.length < problemNumber)
-                        continue;
 
-                    var x = parseFloat(climbersVM[r].Problems[problemNumber - 1].HighHold);
-                    var mu = x - Math.floor(x);
-                    var usablesurface = (mu >= 0.5);
-                    var movement = (!usablesurface && mu >= 0.3);
-                    s += ("^" + Math.floor(x));
-                    s += ("^" + movement);
-                    s += ("^" + usablesurface);
-                    s += ("^" + climbersVM[r].Problems[problemNumber - 1].Attempts);
+                default:  // Sport
+                    for (var pid = 1; pid < climbersVM[r].Problems.length + 1; pid++) {
+                        s += ("#" + pid);
+                        var x = parseFloat(climbersVM[r].Problems[pid - 1].HighHold);
+                        var mu = x - Math.floor(x);
+                        var usablesurface = (mu >= 0.5);
+                        var movement = (!usablesurface && mu >= 0.3);
+                        if (isNaN(x)) {
+                            s += ("^");
+                        } else {
+                            s += ("^" + Math.floor(x));
+                        }
+                        s += ("^" + movement);
+                        s += ("^" + usablesurface);
+                        s += ("^" + climbersVM[r].Problems[pid - 1].Attempts);
+                    }
             }
         }
         s += "~";
