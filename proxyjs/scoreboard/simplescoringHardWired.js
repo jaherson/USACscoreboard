@@ -15,12 +15,14 @@ var PROBLEMOFFSETS = [
     { Highhold: 17, Attempts: 18 },
     { Highhold: 20, Attempts: 21 }
 ];
+var SPEEDROUTEOFFSETS = [5,6,7, 9,10,11];
 var SHEETNUMPROBLEMSADDRESS = '!C2'; // the range address of the number of problems for this round
 var SHEETTOPHOLDSADDRESS = '!H3:Z3'; // the range address of the top hold #'s of the problems
 var SHEETCLIMBERSINITADDRESS = "!A5";// used to push climber names, teamnames andd memberIds into a new scoring sheet
 var SHEETTOPHOLDOFFSETS = [0, 3, 6, 9, 12, 15];
 var SHEETDATAHEADERADDRESS = '!A4:Z4';
 var SHEETROUNDNAMEADDRESS = '!D2';   // the range address of the round name
+var SHEETDISCIPLINEADDRESS = '!V1';   // the range address of the Discipline for the worksheet
 var SHEETRANKOFFSET = 4;
 
 
@@ -67,6 +69,8 @@ var sstRid2RoundAbbrev = { // TODO - these values were good in the TEST Regional
     "2":"S"                // TODO - Guessing
 };
 
+var sstDIDSPEED = "2";
+var sstDIDSPORT = "3";
 
 var GOOGLESHEETSMIMETYPE = 'application/vnd.google-apps.spreadsheet';
 var EXCELXLSXMIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -100,6 +104,7 @@ var CategoryVM = function() {
     var self = this;
 
     this.Name = "";
+    this.Discipline =""
     this.RoundName = "";
     this.MaxProblems = 0;
     this.TopHolds = [];
@@ -114,6 +119,7 @@ var ClimberVM = function () {
     this.MemberId = "";
     this.TeamName = "";
     this.Problems = [];
+    this.RouteTimes = [];   // Speed times.  Note: first 3 times are for route 1, second 3 times are for route 2.
     this.Rank = -1; 
 };
 var ProbVM = function () {
@@ -192,98 +198,116 @@ function sstFindClimbers(cvm) {
 function sstPullSheetData(targetGoogleSheetId, categoryName, runWhenSuccess) {
 
     gapiBatchGet(
-	{
-	    spreadsheetId: targetGoogleSheetId,
+        {
+            spreadsheetId: targetGoogleSheetId,
             ranges: [
-		categoryName + SHEETNUMPROBLEMSADDRESS,
-		categoryName + SHEETTOPHOLDSADDRESS,
-		categoryName + SHEETDATAHEADERADDRESS,
-		categoryName + SHEETDATAADDRESS,
-		categoryName + SHEETROUNDNAMEADDRESS
+                categoryName + SHEETNUMPROBLEMSADDRESS,
+                categoryName + SHEETTOPHOLDSADDRESS,
+                categoryName + SHEETDATAHEADERADDRESS,
+                categoryName + SHEETDATAADDRESS,
+                categoryName + SHEETROUNDNAMEADDRESS,
+                categoryName + SHEETDISCIPLINEADDRESS
             ]
-	},
-	function (response) {
+        },
+        function (response) {
             var categoryVM = new CategoryVM();
             categoryVM.Name = categoryName;
 
-            if (response.result.valueRanges.length < 5)
-		alert("There were not the expected 5 ranges returned from this " + categoryName);
+            if (response.result.valueRanges.length < 6)
+                alert("There were not the expected 6 ranges returned from this " + categoryName);
+
+            var range5 = response.result.valueRanges[5];    // Is this for Speed
+            if (range5.values.length > 0) {
+                categoryVM.Discipline = range5.values[0][0];
+            } else {
+                alert("The Discipline Name was not found for " + categoryName);
+                return;
+            }
 
             var range0 = response.result.valueRanges[0];    // Get Number of Problems
             if (range0.values.length > 0) {
-		categoryVM.MaxProblems = parseInt(range0.values[0][0]);
+                categoryVM.MaxProblems = parseInt(range0.values[0][0]);
             } else {
-		alert("The Number of problems was not found for this " + categoryName);
-		return;
+                alert("The Number of problems was not found for this " + categoryName);
+                return;
             }
 
             var range1 = response.result.valueRanges[1];    // Get Top Hold #s for each problem
             if (range1.values.length > 0) {
-		var row1 = range1.values[0];
-		for (var j = 0; j < categoryVM.MaxProblems; j++) {
+                var row1 = range1.values[0];
+                for (var j = 0; j < categoryVM.MaxProblems; j++) {
                     categoryVM.TopHolds.push(parseInt(row1[SHEETTOPHOLDOFFSETS[j]]));
-		}
+                }
             } else {
-		alert("The top hold numbers were not found for this " + categoryName);
-		return;
+                alert("The top hold numbers were not found for this " + categoryName);
+                return;
             }
 
             var range2 = response.result.valueRanges[2];    // Find the column offset for the member id
             if (range2.values.length > 0) {
-		var row2 = range2.values[0];
-		for (var j = 0; j < row2.length; j++) {
+                var row2 = range2.values[0];
+                for (var j = 0; j < row2.length; j++) {
                     if (row2[j].startsWith("Member #")) {
-			categoryVM.MemberIdOffset = j;
-			break;
+                        categoryVM.MemberIdOffset = j;
+                        break;
                     }
-		}
+                }
             } else {
-		alert("The 'Member #' column header was not found for " + categoryName);
-		return;
+                alert("The 'Member #' column header was not found for " + categoryName);
+                return;
             }
-            
+
             var range3 = response.result.valueRanges[3];    // Get the entered scores
             if (range3.values.length > 0) {
-		for (var i = 0; i < range3.values.length; i++) {
+                for (var i = 0; i < range3.values.length; i++) {
                     var row3 = range3.values[i];
 
                     if (row3.length < 1 || row3[CLIMBERNAMEOFFSET] == "")
-			continue;   // don't include blank names or memberid rows
+                        continue;   // don't include blank names or memberid rows
                     if (row3[categoryVM.MemberIdOffset] == "") {
-			alert("no Member # found for " + categoryName + " " + row3[CLIMBERNAMEOFFSET] + ".  No scores read beyond this person.");
-			break;
+                        alert("no Member # found for " + categoryName + " " + row3[CLIMBERNAMEOFFSET] + ".  No scores read beyond this person.");
+                        break;
                     }
 
                     if (i >= categoryVM.Climbers.length - 1) {
-			categoryVM.Climbers.push(new ClimberVM);
+                        categoryVM.Climbers.push(new ClimberVM);
                     }
                     var climber = categoryVM.Climbers[i];
                     climber.Name = row3[CLIMBERNAMEOFFSET];
                     climber.MemberId = row3[categoryVM.MemberIdOffset];
                     climber.Rank = row3[SHEETRANKOFFSET];
 
-                    for (var j = 0; j < categoryVM.MaxProblems; j++) {
-			climber.Problems.push(new ProbVM);
-			climber.Problems[j].HighHold = sstBlankNaN(parseFloat(row3[PROBLEMOFFSETS[j].Highhold]));
-			climber.Problems[j].Attempts = sstBlankNaN(parseInt(row3[PROBLEMOFFSETS[j].Attempts]));
+                    switch (categoryVM.Discipline) {
+                        case "Speed":
+                            for (var j = 0; j < 6; j++) {
+                                climber.RouteTimes[j] = sstBlankNaN(parseFloat(row3[SPEEDROUTEOFFSETS[j]]));
+                            }
+                            break;
+
+                        default:
+                            for (var j = 0; j < categoryVM.MaxProblems; j++) {
+                                climber.Problems.push(new ProbVM);
+                                climber.Problems[j].HighHold = sstBlankNaN(parseFloat(row3[PROBLEMOFFSETS[j].Highhold]));
+                                climber.Problems[j].Attempts = sstBlankNaN(parseInt(row3[PROBLEMOFFSETS[j].Attempts]));
+                            }
                     }
-		}
+                }
             } else {
-		alert("No scores found for " + categoryName);
-		return;
+                alert("No scores found for " + categoryName);
+                return;
             }
 
             var range4 = response.result.valueRanges[4];    // Get Round name
             if (range4.values.length > 0) {
-		categoryVM.RoundName = range4.values[0][0];
+                categoryVM.RoundName = range4.values[0][0];
             } else {
-		alert("The Round Name was not found for " + categoryName);
-		return;
+                alert("The Round Name was not found for " + categoryName);
+                return;
             }
-	    //console.log(categoryVM);
+            //console.log(categoryVM);
             runWhenSuccess(categoryVM);
-            
-	});
+
+        });
 }
 
 function sstBlankNaN(num) {         // because NaN != NaN  we don't want to compare NaN results of parseInt of an empty cell

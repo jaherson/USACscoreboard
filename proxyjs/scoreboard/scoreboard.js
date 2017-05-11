@@ -44,17 +44,18 @@ function waitForBoulderingTab() {
     var divSST = $("#sst-partialHTML");
 
     if (divBouldering.length==0 || divSheets.length==0 || divSST.length==0) {
-        console.log("Error: can't locate divBouldering or divSheets!");
+        console.log("Error: can't locate divBouldering or divSheets or divSST!");
         return;
     }
 
-    if (divBouldering.attr('class') != 'tab-body active') {
+    if (divBouldering.attr('class') != 'tab-body new-gui active') {
         console.log("bouldering tab not enabled");
         //unforunately we have to poll until boudering tab is loaded. No real convenient way to get an div/onload event
         setTimeout(waitForBoulderingTab, 1000);
         return;
     }
-sstLoadSheetSelect();
+
+    sstLoadSheetSelect();
 
 	ScoringView(0);
 
@@ -76,9 +77,9 @@ function ScoringView(id) {
 	$('#pagetitle').show();
 	$('#divIntro').show();
 	$('div.footer-wrapper').show();
-	$("#sst-controls").hide();
-	$(".sst-round-category-selection").hide();
-	$("#divSheets").hide();
+	//$("#sst-controls").hide();
+	//$(".sst-round-category-selection").hide();
+	//$("#divSheets").hide();
 	break;
     case 0:
     $(DIVDISCIPLINE).hide();
