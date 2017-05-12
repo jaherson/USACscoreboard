@@ -41,7 +41,7 @@ function sstGetScores(did, climbersVM) {
                     for (var pid = 1; pid < climbersVM[r].Problems.length + 1; pid++) {
                         s += ("#" + pid);
                         var x = parseFloat(climbersVM[r].Problems[pid - 1].HighHold);
-                        var mu = x - Math.floor(x);
+                        var mu = Math.round((x - Math.floor(x))*100)/100; // IEEE floating point errors
                         var usablesurface = (mu >= 0.5);
                         var movement = (!usablesurface && mu >= 0.3);
                         if (isNaN(x)) {

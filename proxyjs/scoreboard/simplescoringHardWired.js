@@ -71,6 +71,11 @@ var sstRid2RoundAbbrev = { // TODO - these values were good in the TEST Regional
 
 var sstDIDSPEED = "2";
 var sstDIDSPORT = "3";
+var sstDISCIPLINE2DID = {
+    "Bouldering": 1,
+    "Speed": 2,
+    "Sport": 3
+}
 
 var GOOGLESHEETSMIMETYPE = 'application/vnd.google-apps.spreadsheet';
 var EXCELXLSXMIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -413,6 +418,10 @@ function sstGetSelectedCategories() {
     return selectedCategories;
 }
 function sstPushDatatoUSACCallback(cvm) {
+    if (sstDISCIPLINE2DID[cvm.Discipline] != sstGetDisciplineId()) {
+        alert("The selected sheet (cell V2) is for a discipline that does NOT match the currently selected discipline for scoring in USAC.");
+        return;
+    }
     sstipjUSACSaveClimbersTable(
         sstGetEventId(),
         sstGetDisciplineId(),
