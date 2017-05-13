@@ -1,6 +1,6 @@
 {
     "remoteHost" : "usac.activecm.net", 
-    "proxyHost" : "localhost:8000",
+    "proxyHost" : "www.rcscoring.org",
     "proxyPort" : 8000,
     "images404" : 1,
     "patchScript" : "/scoreboard/scoreboard.js"
