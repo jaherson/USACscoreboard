@@ -1,4 +1,5 @@
-﻿console.log("simplescoring.js is now loaded dynamically");
+﻿var sst_version = 1.2
+console.log("simplescoring.js is now loaded dynamically. Version", sst_version);
 //"use strict";
 
 //
