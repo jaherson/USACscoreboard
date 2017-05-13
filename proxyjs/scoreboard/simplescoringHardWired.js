@@ -433,10 +433,6 @@ function sstPushDatatoUSACCallback(cvm) {
 }
 
 function sstCompareClicked(notbyUI) {
-    if (sstGetDisciplineId() == sstDIDSPEED) {
-        alert("This feature is not supported for Speed.");
-        return;
-    }
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
     if (!notbyUI) {
@@ -570,10 +566,6 @@ function sstPushClimberNamesIds2SheetClicked() {
 }
 
 function sstCheckRankComputationClicked() {
-    if (sstGetDisciplineId() == sstDIDSPEED) {
-        alert("This feature is not supported for Speed.");
-        return;
-    }
     if (!sstActiveSheetId)
         alert("You must select the main sheet first.");
     sstPrintResetShow();
