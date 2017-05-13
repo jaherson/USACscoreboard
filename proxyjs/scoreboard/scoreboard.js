@@ -77,9 +77,10 @@ function ScoringView(id) {
 	$('#pagetitle').show();
 	$('#divIntro').show();
 	$('div.footer-wrapper').show();
-	//$("#sst-controls").hide();
-	//$(".sst-round-category-selection").hide();
-	//$("#divSheets").hide();
+	$("#sst-controls").hide();
+	$(".sst-round-category-selection").hide();
+	$("#divSheets").hide();
+        $("#sst-eventid-div").hide();
 	break;
     case 0:
     $(DIVDISCIPLINE).hide();
@@ -89,6 +90,7 @@ function ScoringView(id) {
 	$("#sst-controls").show();
 	$(".sst-round-category-selection").show();
 	$("#divSheets").show();
+        $("#sst-eventid-div").show();
 	break;
     }
     $("#sst-eventid-span").text($("#divEvent #divTabHeaders").attr("data-eventid"));

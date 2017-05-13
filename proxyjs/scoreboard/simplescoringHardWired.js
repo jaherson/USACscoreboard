@@ -692,7 +692,6 @@ function gapidriveFilesCopy(options, responseCB) {
     gapiProxy(url, responseCB);
 }
 function gapidriveFilesList(options, responseCB) {
-    console.log(options);
     var url = '/gapi/filesList?' + JSON.stringify(options);
     gapiProxy(url, responseCB);
 }
@@ -790,14 +789,12 @@ function sstLoadSheetSelect()
 {
     var sheetSelect = $("#SheetSelectList");
     var dblChkSheetSelect = $("#dblChkSheetSelectList");
-    var DIVISION2FOLDERID = {
-        "1": '0B8VRfGThSdoAVWhVRDNiM2otNVk', //div1
-        //"2": '0B8VRfGThSdoAa3hURXRsTGpzMjA', //div2
-        "2": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ', //div2 debug,
-        "8": '0B8VRfGThSdoAWUZMNkhzQ3JuMDQ' //div8
+    var REGION2FOLDERID = {
+	"101": '0B8VRfGThSdoAUDlKS0o5b0l0cnc', //sportspeed/2017/Region101
+	"201": '0B8VRfGThSdoAMnRBXzBiSnMxLUE', //sportspeed/2017/Region201
     }
-    var folderId = DIVISION2FOLDERID[sstGetEventRegion()[0]];
-
+    // error check valid Region numbers!
+    var folderId = REGION2FOLDERID[sstGetEventRegion()];
     var queryFolder = "'" + folderId + "' " + "in parents";
     var queryMimeType = "mimeType = 'application/vnd.google-apps.spreadsheet'";
     var query = '"' + queryMimeType + ' and ' + queryFolder + '"';     // if this is ever used, need to keep Excel mimetype too...
