@@ -57,14 +57,15 @@ module.exports = {
 	    remoteHost = config['remoteHost'];
 	if (config['proxyHost'])
 	    proxyHost = config['proxyHost'];
-	if (config['proxyPort'])
-	    proxyPort = config['proxyPort'];
+//	if (config['proxyPort'])
+//	    proxyPort = config['proxyPort'];
+	proxyPort = process.env.PORT || config['proxyPort'] || 8000;
 	if (config['images404'])
 	    images404 = config['images404'];
 	if (config['patchScript'])
 	    patchScript = config['patchScript'];
 	
-	console.log(patchScript + remoteHost);
+	console.log("Init: ", patchScript, "=>", remoteHost);
 
 	proxy = httpProxy.createProxyServer(
 	    {
@@ -97,7 +98,7 @@ module.exports = {
 	app.use('/scoring-and-results/', harmon([], selects));
 
 	http.createServer(app).listen(proxyPort);
-	console.log("%s => %s\n", proxyHost, remoteHost);
+	console.log("ProxyRemoteInit: %s:%d => %s\n", proxyHost, proxyPort, remoteHost);
     },
 
     Get : function(req, res) {
